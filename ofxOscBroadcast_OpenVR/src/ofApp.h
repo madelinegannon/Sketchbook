@@ -59,6 +59,10 @@ public:
 
 	//Distribute a received message among the known hosts
 	void broadcastToClients();
+	void broadcastToClients(ofxOscMessage m);
+
+	void handleControllers();
+	void handleTrackers();
 
 
 	//----------------------------------------

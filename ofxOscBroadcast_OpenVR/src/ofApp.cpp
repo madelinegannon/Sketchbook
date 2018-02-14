@@ -125,8 +125,12 @@ void ofApp::update(){
 	checkForNewClients();
 
 	if (knownClients.size() > 0) {
-		broadcastToClients();
+		//broadcastToClients();
+		handleTrackers();
+		handleControllers();
 	}
+
+
 }
 
 //--------------------------------------------------------------
@@ -180,57 +184,193 @@ void ofApp::checkForNewClients() {
 }
 
 //--------------------------------------------------------------
-void ofApp::broadcastToClients() {
+void ofApp::handleTrackers() {
 
-	ofxOscMessage m;
+	map<int, glm::mat4x4> tracker = openVR.getTrackers();
+	for (auto &ent1 : tracker) {
+		ofMatrix4x4 mat = toOf(ent1.second);
+		ofVec3f P;
+		ofQuaternion Q;
+		ofVec3f  S;
+		ofQuaternion SO;
+		mat.decompose(P, Q, S, SO);
+
+		ofxOscMessage m;
+		m.setAddress("/tracker");
+		m.addInt32Arg(ent1.first);
+
+		m.addFloatArg(P.x);
+		m.addFloatArg(P.y);
+		m.addFloatArg(P.z);
+
+		m.addFloatArg(S.x);
+		m.addFloatArg(S.y);
+		m.addFloatArg(S.z);
+
+		m.addFloatArg(Q.x());
+		m.addFloatArg(Q.y());
+		m.addFloatArg(Q.z());
+		m.addFloatArg(Q.w());
+
+		m.addFloatArg(SO.x());
+		m.addFloatArg(SO.y());
+		m.addFloatArg(SO.z());
+		m.addFloatArg(SO.w());
+
+		broadcastToClients(m);
+	}
+}
+
+//--------------------------------------------------------------
+void ofApp::handleControllers() {
 
 
-	// Left controller
-	if (openVR.isControllerConnected(vr::TrackedControllerRole_LeftHand) && sendLeftController) {
+	if (openVR.isControllerConnected(vr::TrackedControllerRole_LeftHand)) {
 
-		glm::vec4 controllerPoseGlm = openVR.getControllerPose(vr::TrackedControllerRole_LeftHand)[3];
-		ofVec3f controllerPose = ofVec3f(controllerPoseGlm.x, controllerPoseGlm.y, controllerPoseGlm.z);
+		ofMatrix4x4 mat = toOf(openVR.getControllerPose(vr::TrackedControllerRole_LeftHand));
+		ofVec3f P;
+		ofQuaternion Q;
+		ofVec3f  S;
+		ofQuaternion SO;
+		mat.decompose(P, Q, S, SO);
 
-		m.setAddress("/left/pos");
-		m.addFloatArg(controllerPose.x);
-		m.addFloatArg(controllerPose.y);
-		m.addFloatArg(controllerPose.z);
+		if (sendLeftController) {
 
+			ofxOscMessage m;
+			m.setAddress("/controller/left");
+			m.addInt32Arg(vr::TrackedControllerRole_LeftHand);
+
+			m.addFloatArg(P.x);
+			m.addFloatArg(P.y);
+			m.addFloatArg(P.z);
+
+			m.addFloatArg(S.x);
+			m.addFloatArg(S.y);
+			m.addFloatArg(S.z);
+
+			m.addFloatArg(Q.x());
+			m.addFloatArg(Q.y());
+			m.addFloatArg(Q.z());
+			m.addFloatArg(Q.w());
+
+			m.addFloatArg(SO.x());
+			m.addFloatArg(SO.y());
+			m.addFloatArg(SO.z());
+			m.addFloatArg(SO.w());
+
+			broadcastToClients(m);
+		}
 	}
 
 	// Right controller
-	if (openVR.isControllerConnected(vr::TrackedControllerRole_RightHand) ) {
+	if (openVR.isControllerConnected(vr::TrackedControllerRole_RightHand)) {
 
-		auto pose = openVR.getControllerPose(vr::TrackedControllerRole_RightHand);
+		ofMatrix4x4 mat = toOf(openVR.getControllerPose(vr::TrackedControllerRole_RightHand));
+		ofVec3f P;
+		ofQuaternion Q;
+		ofVec3f  S;
+		ofQuaternion SO;
+		mat.decompose(P, Q, S, SO);
 
+		if (sendLeftController) {
 
-		
+			ofxOscMessage m;
+			m.setAddress("/controller/right");
+			m.addInt32Arg(vr::TrackedControllerRole_RightHand);
+
+			m.addFloatArg(P.x);
+			m.addFloatArg(P.y);
+			m.addFloatArg(P.z);
+
+			m.addFloatArg(S.x);
+			m.addFloatArg(S.y);
+			m.addFloatArg(S.z);
+
+			m.addFloatArg(Q.x());
+			m.addFloatArg(Q.y());
+			m.addFloatArg(Q.z());
+			m.addFloatArg(Q.w());
+
+			m.addFloatArg(SO.x());
+			m.addFloatArg(SO.y());
+			m.addFloatArg(SO.z());
+			m.addFloatArg(SO.w());
+
+			broadcastToClients(m);
+		}
 	}
+}
 
-	
+//--------------------------------------------------------------
+//void ofApp::broadcastToClients() {
+//
+//	ofxOscMessage m;
+//
+//
+//	// Left controller
+//	if (openVR.isControllerConnected(vr::TrackedControllerRole_LeftHand) && sendLeftController) {
+//
+//		glm::vec4 controllerPoseGlm = openVR.getControllerPose(vr::TrackedControllerRole_LeftHand)[3];
+//		ofVec3f controllerPose = ofVec3f(controllerPoseGlm.x, controllerPoseGlm.y, controllerPoseGlm.z);
+//
+//		m.setAddress("/left/pos");
+//		m.addFloatArg(controllerPose.x);
+//		m.addFloatArg(controllerPose.y);
+//		m.addFloatArg(controllerPose.z);
+//
+//	}
+//
+//	// Right controller
+//	if (openVR.isControllerConnected(vr::TrackedControllerRole_RightHand) ) {
+//
+//		auto pose = openVR.getControllerPose(vr::TrackedControllerRole_RightHand);
+//
+//
+//		
+//	}
+//
+//	//vr::TrackedDeviceClass_GenericTracker
+//
+//	
+//
+//
+//	////create a new OSC message
+//	//ofxOscMessage m;
+//	//m.setAddress("/pos");
+//	//m.addInt32Arg(ofGetMouseX());
+//	//m.addInt32Arg(ofGetMouseY());
+//
+//	cout << "knownClients.size(): " << knownClients.size() << endl;
+//	//Send message to all known hosts
+//	// use another port to avoid a localhost loop
+//	for (int i = 0; i < knownClients.size(); i++) {
+//		serverSender.setup(knownClients[i], serverSendPort);
+//		m.setRemoteEndpoint(knownClients[i], serverSendPort);
+//		serverSender.sendMessage(m);// , false);
+//		//ofLogVerbose("Server broadcasting message {" + ofToString(m.getArgAsInt32(0)) + "," + ofToString(m.getArgAsInt32(1)) + "} to " + m.getRemoteIp()
+//		//	+ ":" + ofToString(m.getRemotePort()));
+//		//cout << "Server broadcasting message {" << ofToString(m.getArgAsInt32(0)) + "," << ofToString(m.getArgAsInt32(1)) + "} to " + m.getRemoteIp()
+//		//	<< ":" << ofToString(m.getRemotePort()) << endl;
+//
+//	}
+//}
 
 
+//--------------------------------------------------------------
+void ofApp::broadcastToClients(ofxOscMessage m) {
 
-	////create a new OSC message
-	//ofxOscMessage m;
-	//m.setAddress("/pos");
-	//m.addInt32Arg(ofGetMouseX());
-	//m.addInt32Arg(ofGetMouseY());
-
-	cout << "knownClients.size(): " << knownClients.size() << endl;
 	//Send message to all known hosts
 	// use another port to avoid a localhost loop
 	for (int i = 0; i < knownClients.size(); i++) {
 		serverSender.setup(knownClients[i], serverSendPort);
 		m.setRemoteEndpoint(knownClients[i], serverSendPort);
-		serverSender.sendMessage(m);// , false);
-		//ofLogVerbose("Server broadcasting message {" + ofToString(m.getArgAsInt32(0)) + "," + ofToString(m.getArgAsInt32(1)) + "} to " + m.getRemoteIp()
-		//	+ ":" + ofToString(m.getRemotePort()));
-		//cout << "Server broadcasting message {" << ofToString(m.getArgAsInt32(0)) + "," << ofToString(m.getArgAsInt32(1)) + "} to " + m.getRemoteIp()
-		//	<< ":" << ofToString(m.getRemotePort()) << endl;
+		serverSender.sendMessage(m);
 
 	}
+
 }
+
+
 
 //--------------------------------------------------------------
 void  ofApp::render(vr::Hmd_Eye nEye)
@@ -265,6 +405,18 @@ void  ofApp::render(vr::Hmd_Eye nEye)
 
 		_controllersShader.begin();
 		_controllersShader.setUniformMatrix4f("matrix", toOf(rightControllerPoseMat), 1);
+		_controllerBox.drawWireframe();
+		_controllersShader.end();
+	}
+
+	// Trackers
+	map<int, glm::mat4x4> tracker = openVR.getTrackers();
+	for (auto &ent1 : tracker) {
+
+		glm::mat4x4 trackerPoseMat = openVR.getCurrentViewProjectionMatrix(nEye) * ent1.second;
+		
+		_controllersShader.begin();
+		_controllersShader.setUniformMatrix4f("matrix", toOf(trackerPoseMat), 1);
 		_controllerBox.drawWireframe();
 		_controllersShader.end();
 	}
