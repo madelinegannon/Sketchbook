@@ -36,13 +36,9 @@ ofxOscBroadcast/bin/*
 !ofxOscBroadcast/bin/data
 ofxOscBroadcastReceiver/bin/*
 !ofxOscBroadcastReceiver/bin/data
+ofxOscBroadcast_OpenVR/bin/*
+!ofxOscBroadcast_OpenVR/bin/data
 *.db-shm
 *.db-wal
 *.db-shm
 *.db-wal
-*.exe
-*.exp
-*.lib
-*.ilk
-*.pdb
-*.dll
