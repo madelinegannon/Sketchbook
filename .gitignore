@@ -28,7 +28,7 @@ project.xcworkspace
 *.ipch
 
 .svn/
-.vs/
+.vs
 obj/
 build/
 
