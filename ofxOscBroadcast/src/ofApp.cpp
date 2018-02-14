@@ -27,6 +27,7 @@ void ofApp::update(){
 	}
 }
 
+//--------------------------------------------------------------
 void ofApp::checkForNewClients() {
 	// check for waiting messages
 	while (serverReceiver.hasWaitingMessages()) {
@@ -63,13 +64,13 @@ void ofApp::draw(){
 
 	if (debugOsc) {
 
-	stringstream ss;
+		stringstream ss;
 
-	ss << "Broadcasting on PORT " << serverSendPort << " to the following IP addresses:" << endl;
-	for (int i = 0; i < knownClients.size(); i++) {
-		ss << "\t" << knownClients[i] << endl;
-	}
-	ofDrawBitmapStringHighlight(ss.str(), 15,15);
+		ss << "Broadcasting on PORT " << serverSendPort << " to the following IP addresses:" << endl;
+		for (int i = 0; i < knownClients.size(); i++) {
+			ss << "\t" << knownClients[i] << endl;
+		}
+		ofDrawBitmapStringHighlight(ss.str(), 15, 15);
 
 	}
 }
@@ -97,6 +98,7 @@ void ofApp::broadcastToClients() {
 
 	}
 }
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
