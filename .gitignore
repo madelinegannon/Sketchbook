@@ -28,9 +28,7 @@ project.xcworkspace
 *.ipch
 
 .svn/
-.vs/
-*.db-shm
-*.db-wal
+.vs/*
 obj/
 build/
 
