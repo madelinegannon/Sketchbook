@@ -19,6 +19,9 @@ void ofApp::setup(){
 	m.setAddress("/ping");
 	sender.sendMessage(m);
 
+	ofEnableDepthTest();
+	cam.setDistance(100);
+
 }
 
 //--------------------------------------------------------------
@@ -36,6 +39,21 @@ void ofApp::update(){
 		// get the next message
 		ofxOscMessage m;
 		receiver.getNextMessage(m);
+
+		if (m.getAddress() == "/tracker") {
+			int id = m.getArgAsInt(0);
+
+			if (trackers.find(id) == trackers.end()) {
+				Tracker t;
+				t.id = id;
+				trackers[id] = t;
+			}
+
+			trackers[id].pos.x = m.getArgAsFloat(1);
+			trackers[id].pos.y = m.getArgAsFloat(2);
+			trackers[id].pos.z = m.getArgAsFloat(3);
+
+		}
 
 		if (m.getAddress() == "/pos") {
 			mouseX = m.getArgAsInt32(0);
@@ -99,20 +117,39 @@ void ofApp::draw(){
 	string buf;
 	buf = "listening for osc messages on port" + ofToString(PORT);
 	ofDrawBitmapString(buf, 10, 20);
-    
-    if(receivedImage.getWidth() > 0){
-        ofDrawBitmapString("Image:", 10, 160);
-        receivedImage.draw(10, 180);
-    }
 
-	// draw mouse state
-	buf = "mouse: " + ofToString(mouseX, 4) +  " " + ofToString(mouseY, 4);
-	ofDrawBitmapString(buf, 430, 20);
-	ofDrawBitmapString(mouseButtonState, 580, 20);
-
-	for(int i = 0; i < NUM_MSG_STRINGS; i++){
-		ofDrawBitmapString(msg_strings[i], 10, 40 + 15 * i);
+	// draw 3D
+	if (trackers.size() > 0) {
+		cam.begin();
+		ofBackground(0);
+		ofDrawAxis(100);
+		
+		ofPushStyle();
+		ofSetColor(255, 0, 255);
+		ofFill();
+		ofTranslate(trackers.begin()->second.pos.scale(100));
+		ofDrawBox(10);
+		ofPopStyle();
+		
+		cam.end();
 	}
+
+	else {
+		if (receivedImage.getWidth() > 0) {
+			ofDrawBitmapString("Image:", 10, 160);
+			receivedImage.draw(10, 180);
+		}
+
+		// draw mouse state
+		buf = "mouse: " + ofToString(mouseX, 4) + " " + ofToString(mouseY, 4);
+		ofDrawBitmapString(buf, 430, 20);
+		ofDrawBitmapString(mouseButtonState, 580, 20);
+
+		for (int i = 0; i < NUM_MSG_STRINGS; i++) {
+			ofDrawBitmapString(msg_strings[i], 10, 40 + 15 * i);
+		}
+	}
+    
 
 
 

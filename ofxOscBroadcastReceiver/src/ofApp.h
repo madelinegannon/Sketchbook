@@ -3,8 +3,9 @@
 #include "ofMain.h"
 #include "ofxOsc.h"
 
-// listen on port 12345
+// listen on port 9001
 #define PORT 9001
+#define MAD_PC 10.2.169.178
 #define NUM_MSG_STRINGS 20
 
 class ofApp : public ofBaseApp {
@@ -41,4 +42,23 @@ class ofApp : public ofBaseApp {
 		string mouseButtonState;
     
         ofImage receivedImage;
+
+		// Connecting to OpenVR
+		class Tracker {
+		public:
+			Tracker() {};
+
+			int id;
+			ofVec3f pos;
+			ofQuaternion orient;
+			ofMatrix4x4 mat;
+
+			ofMesh mesh;
+			ofBoxPrimitive bb;
+		};
+
+		map<int, Tracker> trackers;
+
+		ofEasyCam cam;
+		
 };
