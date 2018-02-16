@@ -22,6 +22,8 @@ void ofApp::setup(){
 	ofEnableDepthTest();
 	cam.setDistance(100);
 
+	setupViewports();
+
 }
 
 //--------------------------------------------------------------
@@ -108,8 +110,187 @@ void ofApp::update(){
 		}
 
 	}
+
+	if (viewport_showAll)
+		findActiveViewportID();
+
 }
 
+//--------------------------------------------------------------
+void ofApp::findActiveViewportID() {
+
+
+	if (viewport_top.inside(ofGetMouseX(), ofGetMouseY()))
+		viewport_activeID = 0;
+	else if (viewport_left.inside(ofGetMouseX(), ofGetMouseY()))
+		viewport_activeID = 1;
+	else if (viewport_front.inside(ofGetMouseX(), ofGetMouseY()))
+		viewport_activeID = 2;
+	else 
+		viewport_activeID = 3;
+		
+	/*
+	if (viewportSim.inside(ofGetMouseX(), ofGetMouseY()))
+	{
+		activeCam = 1;
+		if (!cams[1]->getMouseInputEnabled()) {
+			cams[1]->enableMouseInput();
+		}
+		if (cams[0]->getMouseInputEnabled()) {
+			cams[0]->disableMouseInput();
+		}
+		if (gizmo.isInteracting() && cams[1]->getMouseInputEnabled()) {
+			cams[1]->disableMouseInput();
+		}
+	}*/
+
+	for (int i = 0; i < cams.size(); i++) {
+		if (i == viewport_activeID && !cams[i]->getMouseInputEnabled())
+			cams[i]->enableMouseInput();
+		else if (i != viewport_activeID)
+			cams[i]->disableMouseInput();
+	}
+
+}
+
+//--------------------------------------------------------------
+void ofApp::drawViewports() {
+
+	if (viewport_showAll) {
+
+		// TOP
+		cams[0]->begin(viewport_top);
+		ofEnableDepthTest();
+
+		ofDrawAxis(100);
+
+		ofDisableDepthTest();
+		cams[0]->end();
+		ofPushStyle();
+		ofNoFill();
+		ofDrawRectangle(viewport_top);
+		ofPopStyle();
+
+		// LEFT
+		cams[1]->begin(viewport_left);
+		ofEnableDepthTest();
+
+		ofDrawAxis(100);
+
+		ofDisableDepthTest();
+		cams[1]->end();
+		ofPushStyle();
+		ofNoFill();
+		ofDrawRectangle(viewport_left);
+		ofPopStyle();
+
+		// FRONT
+		cams[2]->begin(viewport_front);
+		ofEnableDepthTest();
+
+		ofDrawAxis(100);
+
+		ofDisableDepthTest();
+		cams[2]->end();
+		ofPushStyle();
+		ofNoFill();
+		ofDrawRectangle(viewport_front);
+		ofPopStyle();
+		
+		// PERSPECTIVE
+		cams[3]->begin(viewport_persp);
+		ofEnableDepthTest();
+
+		ofDrawAxis(100);
+
+		ofDisableDepthTest();
+		cams[3]->end();
+		ofPushStyle();
+		ofNoFill();
+		ofDrawRectangle(viewport_persp);
+		ofPopStyle();
+
+	}
+
+	// show active viewport at full screen
+	else {
+
+		if (viewport_activeID == 0) {
+			// TOP
+			cams[0]->begin(viewport_top);
+			ofEnableDepthTest();
+
+			ofDrawAxis(100);
+
+			ofDisableDepthTest();
+			cams[0]->end();
+			ofPushStyle();
+			ofNoFill();
+			ofDrawRectangle(viewport_top);
+			ofPopStyle();
+		}
+		else if (viewport_activeID == 1) {
+			// LEFT
+			cams[1]->begin(viewport_left);
+			ofEnableDepthTest();
+
+			ofDrawAxis(100);
+
+			ofDisableDepthTest();
+			cams[1]->end();
+			ofPushStyle();
+			ofNoFill();
+			ofDrawRectangle(viewport_left);
+			ofPopStyle();
+		}
+		else if (viewport_activeID == 2) {
+			// FRONT
+			cams[2]->begin(viewport_front);
+			ofEnableDepthTest();
+
+			ofDrawAxis(100);
+
+			ofDisableDepthTest();
+			cams[2]->end();
+			ofPushStyle();
+			ofNoFill();
+			ofDrawRectangle(viewport_front);
+			ofPopStyle();
+		}
+		else {
+			// PERSPECTIVE
+			cams[3]->begin(viewport_persp);
+			ofEnableDepthTest();
+
+			ofDrawAxis(100);
+
+			ofDisableDepthTest();
+			cams[3]->end();
+			ofPushStyle();
+			ofNoFill();
+			ofDrawRectangle(viewport_persp);
+			ofPopStyle();
+		}
+		
+
+
+
+	}
+
+	// highlight active viewport
+	ofPushStyle();
+	ofSetColor(ofColor::whiteSmoke, 10);
+	if (viewport_activeID == 0) 
+		ofDrawRectangle(viewport_top);
+	else if (viewport_activeID == 1)
+		ofDrawRectangle(viewport_left);
+	else if (viewport_activeID == 2)
+		ofDrawRectangle(viewport_front);
+	else
+		ofDrawRectangle(viewport_persp);
+	ofPopStyle();
+
+}
 
 //--------------------------------------------------------------
 void ofApp::draw(){
@@ -119,36 +300,39 @@ void ofApp::draw(){
 	ofDrawBitmapString(buf, 10, 20);
 
 	// draw 3D
-	if (trackers.size() > 0) {
-		cam.begin();
-		ofBackground(0);
-		ofDrawAxis(100);
-		
-		ofPushStyle();
-		ofSetColor(255, 0, 255);
-		ofFill();
-		ofTranslate(trackers.begin()->second.pos.scale(100));
-		ofDrawBox(10);
-		ofPopStyle();
-		
-		cam.end();
-	}
+	drawViewports();
 
-	else {
-		if (receivedImage.getWidth() > 0) {
-			ofDrawBitmapString("Image:", 10, 160);
-			receivedImage.draw(10, 180);
-		}
 
-		// draw mouse state
-		buf = "mouse: " + ofToString(mouseX, 4) + " " + ofToString(mouseY, 4);
-		ofDrawBitmapString(buf, 430, 20);
-		ofDrawBitmapString(mouseButtonState, 580, 20);
+	//if (trackers.size() > 0) {
+	//	cam.begin();
+	//	ofBackground(0);
+	//	ofDrawAxis(100);
+	//	
+	//	ofPushStyle();
+	//	ofSetColor(255, 0, 255);
+	//	ofFill();
+	//	ofTranslate(trackers.begin()->second.pos.scale(100));
+	//	ofDrawBox(10);
+	//	ofPopStyle();
+	//	
+	//	cam.end();
+	//}
 
-		for (int i = 0; i < NUM_MSG_STRINGS; i++) {
-			ofDrawBitmapString(msg_strings[i], 10, 40 + 15 * i);
-		}
-	}
+	//else {
+	//	if (receivedImage.getWidth() > 0) {
+	//		ofDrawBitmapString("Image:", 10, 160);
+	//		receivedImage.draw(10, 180);
+	//	}
+
+	//	// draw mouse state
+	//	buf = "mouse: " + ofToString(mouseX, 4) + " " + ofToString(mouseY, 4);
+	//	ofDrawBitmapString(buf, 430, 20);
+	//	ofDrawBitmapString(mouseButtonState, 580, 20);
+
+	//	for (int i = 0; i < NUM_MSG_STRINGS; i++) {
+	//		ofDrawBitmapString(msg_strings[i], 10, 40 + 15 * i);
+	//	}
+	//}
     
 
 
@@ -157,6 +341,44 @@ void ofApp::draw(){
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+
+	if (key == 'f'){
+		ofToggleFullscreen();
+		
+		if (viewport_showAll) {
+			viewport_top.set(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+			viewport_left.set(0, ofGetWindowHeight() / 2, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+			viewport_front.set(ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+			viewport_persp.set(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+		}
+	}
+
+	if (key == ' ') {
+		viewport_showAll = !viewport_showAll;
+
+		if (viewport_showAll) {
+			viewport_top.set(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+			viewport_left.set(0, ofGetWindowHeight() / 2, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+			viewport_front.set(ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+			viewport_persp.set(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+		}
+
+		else {
+			if (viewport_activeID == 0) {
+				viewport_top.set(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+			}
+			else if (viewport_activeID == 1) {
+				viewport_left.set(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+			}
+			else if (viewport_activeID == 2) {
+				viewport_front.set(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+			}
+			else {
+				viewport_persp.set(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
+			}
+		}
+		
+	}
 
 }
 
@@ -207,4 +429,80 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){
 
+}
+
+//--------------------------------------------------------------
+void ofApp::setupViewports() {
+
+	viewport_top	= ofRectangle(0, 0, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+	viewport_left = ofRectangle(0, ofGetWindowHeight() / 2, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+	viewport_front  = ofRectangle(ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+	viewport_persp	= ofRectangle(ofGetWindowWidth() / 2, 0, ofGetWindowWidth() / 2, ofGetWindowHeight() / 2);
+
+	viewport_activeID = 0;
+
+
+	for (int i = 0; i < 4; i++) {
+		cams.push_back(new ofEasyCam());
+		savedCamMats.push_back(ofMatrix4x4());
+		viewportLabels.push_back("");
+	}
+
+	//cams[0]->begin(viewport_top);
+	//cams[0]->end();
+	//cams[0]->enableMouseInput();
+
+	//cams[1]->begin(viewport_left);
+	//cams[1]->end();
+	//cams[1]->enableMouseInput();
+
+	//cams[2]->begin(viewport_front);
+	//cams[2]->end();
+	//cams[2]->enableMouseInput();
+
+	//cams[3]->begin(viewport_persp);
+	//cams[3]->end();
+	//cams[3]->enableMouseInput();
+
+	//for (int i = 0; i < cams.size(); i++) {
+	//	cams[i]->enableMouseInput();
+	//}
+}
+
+//--------------------------------------------------------------
+void ofApp::handleViewportPresets(int key) {
+
+	float dist = 2000;
+	float zOffset = 450;
+
+	if (viewport_activeID != -1) {
+		// TOP VIEW  ... use ortho cam
+		if (key == '1') {
+			cams[viewport_activeID]->reset();
+			cams[viewport_activeID]->setPosition(0, 0, dist);
+			cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+			viewportLabels[viewport_activeID] = "TOP VIEW";
+		}
+		// LEFT VIEW ... use ortho cam
+		else if (key == '2') {
+			cams[viewport_activeID]->reset();
+			cams[viewport_activeID]->setPosition(dist, 0, 0);
+			cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+			viewportLabels[viewport_activeID] = "LEFT VIEW";
+		}
+		// FRONT VIEW ... use ortho cam
+		else if (key == '3') {
+			cams[viewport_activeID]->reset();
+			cams[viewport_activeID]->setPosition(0, dist, 0);
+			cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+			viewportLabels[viewport_activeID] = "FRONT VIEW";
+		}
+		// PERSPECTIVE VIEW 
+		else if (key == '4') {
+			cams[viewport_activeID]->reset();
+			cams[viewport_activeID]->setPosition(-dist, -dist, dist / 4);
+			cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+			viewportLabels[viewport_activeID] = "PERSPECTIVE VIEW";
+		}
+	}
 }
