@@ -15,6 +15,7 @@ class ofApp : public ofBaseApp {
 		void setup();
 		void update();
 		void draw();
+		void exit();
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -30,19 +31,15 @@ class ofApp : public ofBaseApp {
 
 		// Connect to OSC Server
 		ofxOscSender sender;
+		string hostname = "10.2.169.178";
 		int senderPort = PORT - 1;
+		bool bIsConnected = false;
+		void tryReconnect();
 
 		ofTrueTypeFont font;
 		ofxOscReceiver receiver;
-
-		int current_msg_string;
-		string msg_strings[NUM_MSG_STRINGS];
-		float timers[NUM_MSG_STRINGS];
-
-		int mouseX, mouseY;
-		string mouseButtonState;
-    
-        ofImage receivedImage;
+		void checkForMessages();
+		
 
 		// Connecting to OpenVR
 		class Tracker {
@@ -64,21 +61,27 @@ class ofApp : public ofBaseApp {
 		// GUI
 
 		void setupViewports();
+		bool bLoadFromFile = true;
 		void setupGUI();
-		void positionGUI();
 
 		bool viewport_showAll = true;
 		int viewport_activeID = -1;
-		ofRectangle viewport_top;
-		ofRectangle viewport_left;
-		ofRectangle viewport_front;
-		ofRectangle viewport_persp;
+		vector<ofRectangle*> viewports;
+		vector<string> viewport_labels;
 
-		bool showGui = true;
+		bool showGUI = true;
 		ofxPanel panel;
-		ofxPanel panel_osc;
 
-		ofParameterGroup params;
+		ofxPanel panel_osc;
+		ofParameterGroup params_osc;
+		ofParameter<string> msg_status;
+		ofParameter<string> msg_listening;
+		ofxButton reconnect;
+		void reconnectBtnPressed();
+
+		ofParameterGroup params_tracking;
+		map<int, ofParameter<bool> > trackedObjects;
+		
 
 		void drawViewports();
 		void findActiveViewportID();
@@ -88,24 +91,13 @@ class ofApp : public ofBaseApp {
 		/////////////////////////////////////////
 		// Navigation
 
-		ofEasyCam cam;
-
 		// 3D Navigation
 		vector<ofEasyCam*> cams;
-		vector<ofMatrix4x4> savedCamMats;
-		vector<string> viewportLabels;
 
+		// checking for double click
+		unsigned long lastTap;
+		bool bDoubleClick = false;
 
-		/**
-		Use hotkeys to cyle through preset viewports.
-		@param key
-		'1' = Top View      <br/>
-		'2' = Left View     <br/>
-		'3' = Front View    <br/>
-		'4' = Perspective   <br/>
-		'5' = Custom View   <br/>
-		'6' = Save current for Custom View
-		*/
-		void handleViewportPresets(int key);
+		
 		
 };
