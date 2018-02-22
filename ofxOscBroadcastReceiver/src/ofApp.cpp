@@ -72,7 +72,7 @@ void ofApp::checkForMessages() {
 		ofxOscMessage m;
 		receiver.getNextMessage(m);
 
-		if (m.getAddress() == "/tracker") {
+		//if (m.getAddress() == "/tracker") {
 			int id = m.getArgAsInt(0);
 
 			// add to map if new tracker
@@ -80,8 +80,11 @@ void ofApp::checkForMessages() {
 				Tracker t;
 				t.id = id;
 				trackers[id] = t;
-
-				trackers[id].mesh = trackerMesh;
+				
+				if (m.getAddress() == "/tracker")
+					trackers[id].mesh = trackerMesh;
+				else
+					trackers[id].mesh = controllerMesh;
 			}
 
 			// get the VR tracker's pos and orientation
@@ -130,13 +133,19 @@ void ofApp::checkForMessages() {
 
 			msg_string = "tracker";
 			msg_string += ": ";
+			msg_string += m.getAddress();
+			msg_string += " | ID: ";
+			msg_string += ofToString(id);
+			msg_string += " | coords: ";
 			msg_string += ofToString(trackers[id].pos);
 			msg_string += ", ";
 			msg_string += ofToString(trackers[id].orient);
 
            //cout << msg_string << endl;
 
-		}
+		//}
+		//else if (m.getAddress() == "/controller/right") {
+		//}
 
 	}
 }
@@ -158,7 +167,7 @@ void ofApp::drawViewports() {
 			ofDrawAxis(1000);
 			ofPopStyle();
 			ofNoFill();
-
+			
 			// draw only the trackers that are currently being tracked
 			for (auto &tracker : trackers) {
 				if (trackedObjects[tracker.second.id])
@@ -474,6 +483,18 @@ void ofApp::loadModels() {
 			vert.rotate(180, ofVec3f(1, 0, 0));
 			// align with Z axis
 			vert.rotate(30, ofVec3f(0, 0, 1));
+			// scale from meters to millimeters
+			vert *= 1000;
+		}
+	}
+
+	// load 3D model of Vive Tracker
+	if (loader.loadModel(ofToDataPath("models/vr_controller_vive_1_5.obj"), false)) {
+		cout << ofToString(loader.getNumMeshes()) << endl;
+		controllerMesh = loader.getMesh(0);
+
+		// adapt tracker mesh configuration to real world coordinates
+		for (auto &vert : controllerMesh.getVertices()) {
 			// scale from meters to millimeters
 			vert *= 1000;
 		}
