@@ -64,8 +64,8 @@ void ofApp::checkForMessages() {
 		if (!bIsConnected) {
 			bIsConnected = true;
 
-			msg_status.set("CONNECTED to " + hostname);
-			msg_listening.set("Listening on PORT " + ofToString(PORT));
+			msg_status.set(hostname);
+			msg_listening.set(ofToString(PORT));
 		}
 
 		// get the next message
@@ -240,6 +240,7 @@ void ofApp::keyPressed(int key){
 
 	if (key == 'f'){
 		ofToggleFullscreen();
+		panel.setPosition(ofGetWidth() - 200 - 10, 10);
 		
 		if (viewport_showAll) {
 
@@ -352,8 +353,8 @@ void ofApp::mousePressed(int x, int y, int button){
 void ofApp::setupGUI() {
 
 	params_osc.setName("OSC Parameters");
-	params_osc.add(msg_status.set("Status", "Not Connected..."));
-	params_osc.add(msg_listening.set("Connection", ""));
+	params_osc.add(msg_status.set("IP Addr", "Not Connected..."));
+	params_osc.add(msg_listening.set("PORT", ""));
 
 	params_tracking.setName("Tracking Options");
 	params_tracking.add(trackedObjects[0].set("Tracker " + ofToString(0), false));

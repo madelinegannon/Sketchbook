@@ -1,11 +1,11 @@
 <OSC_Parameters>
-	<Status>CONNECTED to 10.2.169.178</Status>
-	<Connection>Listening on PORT 9001</Connection>
+	<IP_Addr>10.2.169.178</IP_Addr>
+	<PORT>9001</PORT>
 	<Tracking_Options>
 		<Tracker_0>0</Tracker_0>
-		<Tracker_1>0</Tracker_1>
+		<Tracker_1>1</Tracker_1>
 		<Tracker_2>1</Tracker_2>
-	<Tracker_3>1</Tracker_3>
+		<Tracker_3>1</Tracker_3>
 	</Tracking_Options>
 <OSC_Parameters/>
 </OSC_Parameters>
