@@ -6,7 +6,7 @@ void ofApp::setup(){
 	cout << "listening for osc messages on port " << PORT << "\n";
 	receiver.setup(PORT);
 
-	ofBackground(30, 30, 130);
+	ofBackground(ofColor::darkGray);
 
 	// send an initial ping to the OSC Server
 	sender.setup("localhost", senderPort);
@@ -17,48 +17,13 @@ void ofApp::setup(){
 	// set up GUI
 	setupViewports();
 	setupGUI();
+
+	// load world models
+	loadModels();
 }
 
 //--------------------------------------------------------------
-void ofApp::setupGUI() {
-
-	params_osc.setName("OSC Parameters");
-	params_osc.add(msg_status.set("Status","Not Connected..."));
-	params_osc.add(msg_listening.set("Connection", ""));
-
-	params_tracking.setName("Tracking Options");
-	params_tracking.add(trackedObjects[0].set("Tracker " + ofToString(0), false));
-	params_tracking.add(trackedObjects[1].set("Tracker " + ofToString(1), false));
-	params_tracking.add(trackedObjects[2].set("Tracker " + ofToString(2), false));
-
-	panel.setup(params_osc);
-	panel.add(reconnect.setup("Reconnect"));
-	panel.add(params_tracking);
-
-	panel.setPosition(ofGetWidth() - 200 - 10, 10);
-
-	if (bLoadFromFile)
-		panel.loadFromFile("settings.xml");
-
-	reconnect.addListener(this, &ofApp::reconnectBtnPressed);
-}
-
-//--------------------------------------------------------------
-void ofApp::reconnectBtnPressed() {
-	tryReconnect();
-}
-
-//--------------------------------------------------------------
-void ofApp::tryReconnect() {
-	ofxOscMessage m;
-	m.setAddress("/ping");
-	sender.sendMessage(m);
-
-	cout << "Sent ping to " << hostname << endl;
-}
-
-//--------------------------------------------------------------
-void ofApp::update(){
+void ofApp::update() {
 
 	// check for incoming OSC messages
 	checkForMessages();
@@ -68,17 +33,39 @@ void ofApp::update(){
 
 }
 
+// --------------------------------------------------------------
+void ofApp::draw() {
+
+	// draw 3D
+	drawViewports();
+
+	// draw GUI
+	//if (showGUI)
+	panel.draw();
+
+
+
+}
+
+// -------------------------------------------------------------------
+void ofApp::exit() {
+
+	panel.saveToFile("settings.xml");
+
+}
+
+
 //--------------------------------------------------------------
 void ofApp::checkForMessages() {
 
 	// check for waiting messages
-	while(receiver.hasWaitingMessages()){
+	while (receiver.hasWaitingMessages()) {
 
-		if (!bIsConnected){
+		if (!bIsConnected) {
 			bIsConnected = true;
 
 			msg_status.set("CONNECTED to " + hostname);
-			msg_listening.set("Listening on PORT " + ofToSting(PORT));
+			msg_listening.set("Listening on PORT " + ofToString(PORT));
 		}
 
 		// get the next message
@@ -88,40 +75,70 @@ void ofApp::checkForMessages() {
 		if (m.getAddress() == "/tracker") {
 			int id = m.getArgAsInt(0);
 
+			// add to map if new tracker
 			if (trackers.find(id) == trackers.end()) {
 				Tracker t;
 				t.id = id;
 				trackers[id] = t;
+
+				trackers[id].mesh = trackerMesh;
 			}
 
-			trackers[id].pos.x = m.getArgAsFloat(1);
-			trackers[id].pos.y = m.getArgAsFloat(2);
-			trackers[id].pos.z = m.getArgAsFloat(3);
+			// get the VR tracker's pos and orientation
+			ofVec3f tempPos;
+			ofQuaternion tempOrient;
+			ofVec3f tempScale;
+
+			tempPos.x = m.getArgAsFloat(1) * 1000;
+			tempPos.y = m.getArgAsFloat(2) * 1000;
+			tempPos.z = m.getArgAsFloat(3) * 1000;
+
+			// not using scale (osc message args 4,5,6)
+
+			tempOrient.set(m.getArgAsFloat(7), m.getArgAsFloat(8), m.getArgAsFloat(9), m.getArgAsFloat(10));
+
+			// make transformation matrix
+			ofMatrix4x4 mat, matT, matO;
+			mat.makeIdentityMatrix();
+			matT.makeTranslationMatrix(tempPos);
+			matO.makeRotationMatrix(tempOrient);
+			mat *= matT * matO;
+
+
+
+			// convert from right-handed to left-handed coordinate system
+			ofQuaternion rot;
+			rot.makeRotate(ofVec3f(0, 1, 0), ofVec3f(0, 0, 1));
+			mat.rotate(rot);
+
+			// assign tracker values
+			trackers[id].pos.set(tempPos.x, -tempPos.z, tempPos.y); // why doesn't mat.getTranslation() work?
+			trackers[id].orient.set(mat.getRotate());
+
+
+			// update the internal ofNode matrix
+			trackers[id].setTransformMatrix(mat);
+			trackers[id].setPosition(trackers[id].pos);
+			trackers[id].setOrientation(trackers[id].orient);
+
+			// update the tracker trail
+			trackers[id].update();
+
+
+			// debugging
+			string msg_string;
+
+			msg_string = "tracker";
+			msg_string += ": ";
+			msg_string += ofToString(trackers[id].pos);
+			msg_string += ", ";
+			msg_string += ofToString(trackers[id].orient);
+
+           //cout << msg_string << endl;
 
 		}
 
 	}
-}
-//--------------------------------------------------------------
-void ofApp::findActiveViewportID() {
-
-	// find the active viewport
-	for (int i = 0; i < viewports.size(); i++) {
-		if (viewports[i]->inside(ofGetMouseX(), ofGetMouseY())) {
-			viewport_activeID = i;
-		}
-
-	}
-
-		
-	// disable cam interaction with inactive viewports
-	for (int i = 0; i < cams.size(); i++) {
-		if (i == viewport_activeID && !cams[i]->getMouseInputEnabled())
-			cams[i]->enableMouseInput();
-		else if (i != viewport_activeID)
-			cams[i]->disableMouseInput();
-	}
-
 }
 
 //--------------------------------------------------------------
@@ -134,9 +151,19 @@ void ofApp::drawViewports() {
 			cams[i]->begin(*viewports[i]);
 			ofEnableDepthTest();
 
-			ofDrawAxis(100);
+			// draw the background grids and axes
+			ofDrawGrid(100, 10, false, false, false, true);
+			ofPushStyle();
+			ofSetLineWidth(5);
+			ofDrawAxis(1000);
+			ofPopStyle();
 			ofNoFill();
-			ofDrawBox(50);
+
+			// draw only the trackers that are currently being tracked
+			for (auto &tracker : trackers) {
+				if (trackedObjects[tracker.second.id])
+					tracker.second.draw();
+			}
 
 			ofDisableDepthTest();
 			cams[i]->end();
@@ -164,9 +191,20 @@ void ofApp::drawViewports() {
 				cams[i]->begin(*viewports[i]);
 				ofEnableDepthTest();
 
-				ofDrawAxis(100);
+				ofDrawGrid(100, 10, false, false, false, true);
+
+				ofPushStyle();
+				ofSetLineWidth(5);
+				ofDrawAxis(1000);
+				ofPopStyle();
 				ofNoFill();
-				ofDrawBox(50);
+			
+				// draw only the trackers that are currently being tracked
+				for (auto &tracker : trackers) {
+					if (trackedObjects[tracker.second.id]) {
+						tracker.second.draw();
+					}
+				}
 
 				ofDisableDepthTest();
 				cams[i]->end();
@@ -187,43 +225,6 @@ void ofApp::drawViewports() {
 
 }
 
-		
-
-
-//--------------------------------------------------------------
-void ofApp::draw(){
-
-	// draw 3D
-	drawViewports();
-
-
-	// draw GUI
-	//if (showGUI)
-	panel.draw();
-
-	//if (trackers.size() > 0) {
-	//	cam.begin();
-	//	ofBackground(0);
-	//	ofDrawAxis(100);
-	//	
-	//	ofPushStyle();
-	//	ofSetColor(255, 0, 255);
-	//	ofFill();
-	//	ofTranslate(trackers.begin()->second.pos.scale(100));
-	//	ofDrawBox(10);
-	//	ofPopStyle();
-	//	
-	//	cam.end();
-	//}
-
-}
-
-// -------------------------------------------------------------------
-void ofApp::exit() {
-	
-	panel.saveToFile("settings.xml");
-	
-}
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
@@ -275,19 +276,20 @@ void ofApp::keyPressed(int key){
 
 	}
 
-	float dist = 200;
+	float dist = 1500;
 	if (key == '1') {
 		cams[viewport_activeID]->reset();
 		cams[viewport_activeID]->setPosition(0, 0, dist);
-		cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+		cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 1, 0));
+		cams[viewport_activeID]->setScale(5);
 	}
-	// LEFT VIEW ... use ortho cam
+	// LEFT VIEW ... use ortho cam?
 	else if (key == '2') {
 		cams[viewport_activeID]->reset();
 		cams[viewport_activeID]->setPosition(dist, 0, 0);
 		cams[viewport_activeID]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
 	}
-	// FRONT VIEW ... use ortho cam
+	// FRONT VIEW ... use ortho cam?
 	else if (key == '3') {
 		cams[viewport_activeID]->reset();
 		cams[viewport_activeID]->setPosition(0, dist, 0);
@@ -338,12 +340,43 @@ void ofApp::mousePressed(int x, int y, int button){
 }
 
 //--------------------------------------------------------------
+void ofApp::setupGUI() {
+
+	params_osc.setName("OSC Parameters");
+	params_osc.add(msg_status.set("Status", "Not Connected..."));
+	params_osc.add(msg_listening.set("Connection", ""));
+
+	params_tracking.setName("Tracking Options");
+	params_tracking.add(trackedObjects[0].set("Tracker " + ofToString(0), false));
+	params_tracking.add(trackedObjects[1].set("Tracker " + ofToString(1), false));
+	params_tracking.add(trackedObjects[2].set("Tracker " + ofToString(2), false));
+	params_tracking.add(trackedObjects[3].set("Tracker " + ofToString(3), false));
+
+	panel.setup(params_osc);
+	panel.add(reconnect.setup("Reconnect"));
+	panel.add(params_tracking);
+
+	panel.setPosition(ofGetWidth() - 200 - 10, 10);
+
+	if (bLoadFromFile)
+		panel.loadFromFile("settings.xml");
+
+	reconnect.addListener(this, &ofApp::reconnectBtnPressed);
+}
+
+//--------------------------------------------------------------
 void ofApp::setupViewports() {
 
 	viewport_activeID = 0;
+	float dist = 1500;
 
 	for (int i = 0; i < 4; i++) {
 		cams.push_back(new ofEasyCam());
+		
+
+		cams[i]->setFarClip(99999999);
+		cams[i]->setNearClip(0);
+		cams[i]->setDistance(dist);
 
 		string viewport_label;
 		if (i == 0) {
@@ -364,12 +397,11 @@ void ofApp::setupViewports() {
 		}
 		viewport_labels.push_back(viewport_label);
 	}
-		
-	float dist = 200;
 	// TOP
 	cams[0]->enableOrtho();
 	cams[0]->setPosition(0, 0, dist);
-	cams[0]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+	cams[0]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 1, 0));
+	cams[viewport_activeID]->setScale(5); // <-- can't zoom in ortho cam, but can scale
 	// LEFT
 	//cams[1]->enableOrtho(); // ortho not working properly for this camera
 	cams[1]->setPosition(dist, 0, 0);
@@ -381,6 +413,73 @@ void ofApp::setupViewports() {
 	// PERSPECTIVE
 	cams[3]->setPosition(dist, dist, 5*dist / 4);
 	cams[3]->lookAt(ofVec3f(0, 0, 0), ofVec3f(0, 0, 1));
+
+}
+
+//--------------------------------------------------------------
+void ofApp::findActiveViewportID() {
+
+	// find the active viewport
+	for (int i = 0; i < viewports.size(); i++) {
+		if (viewports[i]->inside(ofGetMouseX(), ofGetMouseY())) {
+			viewport_activeID = i;
+		}
+	}
+
+	// disable cam interaction with inactive viewports
+	for (int i = 0; i < cams.size(); i++) {
+		if (i == viewport_activeID && !cams[i]->getMouseInputEnabled())
+			cams[i]->enableMouseInput();
+		else if (i != viewport_activeID)
+			cams[i]->disableMouseInput();
+	}
+
+}
+
+//--------------------------------------------------------------
+void ofApp::reconnectBtnPressed() {
+	tryReconnect();
+}
+
+//--------------------------------------------------------------
+void ofApp::tryReconnect() {
+	ofxOscMessage m;
+	m.setAddress("/ping");
+	sender.sendMessage(m);
+
+	cout << "Sent ping to " << hostname << endl;
+}
+
+// ------------------------------------------------------------------
+
+void ofApp::printmap(map<int, Tracker> & m) {
+	for (const auto& elem : m) {
+		cout << " [id, pos], [" << elem.first << ", " << ofToString(elem.second.pos) << "]" << endl;
+	}
+	cout << endl << "size() == " << m.size() << endl << endl;
+}
+
+// ------------------------------------------------------------------
+
+void ofApp::loadModels() {
+	
+	// load 3D model of Vive Tracker
+	if (loader.loadModel(ofToDataPath("models/TRACKER-3D.stl"), false)) {
+		cout << ofToString(loader.getNumMeshes()) << endl;
+		trackerMesh = loader.getMesh(0);
+		
+		// adapt tracker mesh configuration to real world coordinates
+		for (auto &vert : trackerMesh.getVertices()) {
+			// go from Z-UP to Y-UP
+			vert.rotate(180, ofVec3f(1, 0, 0));
+			// align with Z axis
+			vert.rotate(30, ofVec3f(0, 0, 1));
+			// scale from meters to millimeters
+			vert *= 1000;
+		}
+	}
+
+	
 
 }
 

@@ -3,10 +3,11 @@
 #include "ofMain.h"
 #include "ofxOsc.h"
 #include "ofxGui.h"
+#include "ofxAssimpModelLoader.h"
 
 // listen on port 9001
 #define PORT 9001
-#define MAD_PC 10.2.169.178
+#define MAD_PC 10.2.164.236
 #define NUM_MSG_STRINGS 20
 
 class ofApp : public ofBaseApp {
@@ -42,21 +43,62 @@ class ofApp : public ofBaseApp {
 		
 
 		// Connecting to OpenVR
-		class Tracker {
+		class Tracker : public ofNode{
 		public:
 			Tracker() {};
 
 			int id;
 			ofVec3f pos;
 			ofQuaternion orient;
-			ofMatrix4x4 mat;
+			ofVec3f  scale;
 
 			ofMesh mesh;
-			ofBoxPrimitive bb;
+			ofPolyline trail;
+
+
+			void update() {
+
+				trail.addVertex(pos);
+				if (trail.getVertices().size() > 75)
+					trail.getVertices().erase(trail.getVertices().begin());
+
+			};
+
+			void draw() {
+				ofPushStyle();
+				
+				ofPushMatrix();
+				ofMultMatrix(this->getGlobalTransformMatrix());
+				
+				ofFill();
+				ofSetColor(ofColor::aquamarine,50);
+				//ofDrawBox(50);
+				ofNoFill();
+				ofSetColor(ofColor::antiqueWhite, 200);
+				
+				//ofDrawBox(50);
+				mesh.drawWireframe();
+				ofPopMatrix();
+
+				
+				ofSetLineWidth(5);
+				ofSetColor(ofColor::paleVioletRed, 100);
+				trail.draw();
+
+				ofPopStyle();
+			};
 		};
 
 		map<int, Tracker> trackers;
+		void printmap(map<int, Tracker> & m);
 
+		void drawTracker(int id);
+
+		void loadModels();
+		ofxAssimpModelLoader loader;
+		ofMesh trackerMesh;
+		ofMesh controllerMesh;
+		
 		/////////////////////////////////////////
 		// GUI
 
@@ -65,7 +107,7 @@ class ofApp : public ofBaseApp {
 		void setupGUI();
 
 		bool viewport_showAll = true;
-		int viewport_activeID = -1;
+		int viewport_activeID;
 		vector<ofRectangle*> viewports;
 		vector<string> viewport_labels;
 
