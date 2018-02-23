@@ -63,6 +63,8 @@ public:
 
 	void handleControllers();
 	void handleTrackers();
+	void handleHMD();
+	ofMatrix4x4 hmdMat;
 
 
 	//----------------------------------------

@@ -126,8 +126,12 @@ void ofApp::update(){
 
 	if (knownClients.size() > 0) {
 		//broadcastToClients();
+
+		
+
 		handleTrackers();
 		handleControllers();
+		handleHMD();
 	}
 
 
@@ -186,39 +190,87 @@ void ofApp::checkForNewClients() {
 //--------------------------------------------------------------
 void ofApp::handleTrackers() {
 
-	map<int, glm::mat4x4> tracker = openVR.getTrackers();
-	for (auto &ent1 : tracker) {
-		ofMatrix4x4 mat = toOf(ent1.second);
-		ofVec3f P;
-		ofQuaternion Q;
-		ofVec3f  S;
-		ofQuaternion SO;
-		mat.decompose(P, Q, S, SO);
 
-		ofxOscMessage m;
-		m.setAddress("/tracker");
-		m.addInt32Arg(ent1.first);
 
-		m.addFloatArg(P.x);
-		m.addFloatArg(P.y);
-		m.addFloatArg(P.z);
+	map<int, glm::mat4x4> trackers = openVR.getTrackers();
+	for (auto &tracker : trackers) {
 
-		m.addFloatArg(S.x);
-		m.addFloatArg(S.y);
-		m.addFloatArg(S.z);
 
-		m.addFloatArg(Q.x());
-		m.addFloatArg(Q.y());
-		m.addFloatArg(Q.z());
-		m.addFloatArg(Q.w());
+		if (openVR.isTrackerConnected(vr::TrackedDeviceClass_GenericTracker, tracker.first)) {
 
-		m.addFloatArg(SO.x());
-		m.addFloatArg(SO.y());
-		m.addFloatArg(SO.z());
-		m.addFloatArg(SO.w());
+			ofMatrix4x4 mat = toOf(tracker.second);
+			ofVec3f P;
+			ofQuaternion Q;
+			ofVec3f  S;
+			ofQuaternion SO;
+			mat.decompose(P, Q, S, SO);
 
-		broadcastToClients(m);
+			ofxOscMessage m;
+			m.setAddress("/tracker");
+			m.addInt32Arg(tracker.first + 2); // tracker ID's begin after controllers
+
+			m.addFloatArg(P.x);
+			m.addFloatArg(P.y);
+			m.addFloatArg(P.z);
+
+			m.addFloatArg(S.x);
+			m.addFloatArg(S.y);
+			m.addFloatArg(S.z);
+
+			m.addFloatArg(Q.x());
+			m.addFloatArg(Q.y());
+			m.addFloatArg(Q.z());
+			m.addFloatArg(Q.w());
+
+			m.addFloatArg(SO.x());
+			m.addFloatArg(SO.y());
+			m.addFloatArg(SO.z());
+			m.addFloatArg(SO.w());
+
+			broadcastToClients(m);
+		}
+
+
+
 	}
+}
+
+//--------------------------------------------------------------
+void ofApp::handleHMD()
+{
+	//ofMatrix4x4 currentViewProjectionMatrix = &openVR.getCurrentViewProjectionMatrix(nEye)[0][0];
+	//ofMatrix4x4 hdmPoseMat = _translateMatrix * currentViewProjectionMatrix;
+
+	ofMatrix4x4 mat = hmdMat;
+	ofVec3f P;
+	ofQuaternion Q;
+	ofVec3f  S;
+	ofQuaternion SO;
+	mat.decompose(P, Q, S, SO);
+
+	ofxOscMessage m;
+	m.setAddress("/hmd");
+	m.addInt32Arg(0); // tracker ID's begin after controllers
+
+	m.addFloatArg(P.x);
+	m.addFloatArg(P.y);
+	m.addFloatArg(P.z);
+
+	m.addFloatArg(S.x);
+	m.addFloatArg(S.y);
+	m.addFloatArg(S.z);
+
+	m.addFloatArg(Q.x());
+	m.addFloatArg(Q.y());
+	m.addFloatArg(Q.z());
+	m.addFloatArg(Q.w());
+
+	m.addFloatArg(SO.x());
+	m.addFloatArg(SO.y());
+	m.addFloatArg(SO.z());
+	m.addFloatArg(SO.w());
+
+	broadcastToClients(m);
 }
 
 //--------------------------------------------------------------
@@ -382,6 +434,7 @@ void  ofApp::render(vr::Hmd_Eye nEye)
 
 	ofMatrix4x4 currentViewProjectionMatrix = &openVR.getCurrentViewProjectionMatrix(nEye)[0][0];
 	ofMatrix4x4 hdmPoseMat = _translateMatrix * currentViewProjectionMatrix;
+	hmdMat = hdmPoseMat;
 
 	_shader.begin();
 	_shader.setUniformMatrix4f("matrix", hdmPoseMat, 1);
