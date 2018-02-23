@@ -58,6 +58,10 @@ void ofApp::exit() {
 //--------------------------------------------------------------
 void ofApp::checkForMessages() {
 
+	for (auto &tracker : trackers) {
+		tracker.second.isConnected = false;
+	}
+
 	// check for waiting messages
 	while (receiver.hasWaitingMessages()) {
 
@@ -67,12 +71,18 @@ void ofApp::checkForMessages() {
 			msg_status.set(hostname);
 			msg_listening.set(ofToString(PORT));
 		}
+		else {
 
-		// get the next message
-		ofxOscMessage m;
-		receiver.getNextMessage(m);
+			// get the next message
+			ofxOscMessage m;
+			receiver.getNextMessage(m);
 
-		//if (m.getAddress() == "/tracker") {
+			// debug
+			//stringstream ss;
+			//ss << m.getAddress() << ", " << m.getArgAsInt32(0);
+			////cout << ss.str() << endl;
+
+
 			int id = m.getArgAsInt(0);
 
 			// add to map if new tracker
@@ -80,11 +90,23 @@ void ofApp::checkForMessages() {
 				Tracker t;
 				t.id = id;
 				trackers[id] = t;
-				
+
 				if (m.getAddress() == "/tracker")
 					trackers[id].mesh = trackerMesh;
+				else if (m.getAddress() == "/hmd")
+					trackers[id].mesh = hmdMesh;
 				else
 					trackers[id].mesh = controllerMesh;
+
+				string msg_string;
+
+				msg_string = "tracker type";
+				msg_string += ": ";
+				msg_string += m.getAddress();
+				msg_string += " | ID: ";
+				msg_string += ofToString(id);
+
+				cout << msg_status << endl;
 			}
 
 			// get the VR tracker's pos and orientation
@@ -115,37 +137,52 @@ void ofApp::checkForMessages() {
 			mat.rotate(rot);
 
 			// assign tracker values
-			trackers[id].pos.set(tempPos.x, -tempPos.z, tempPos.y); // why doesn't mat.getTranslation() work?
-			trackers[id].orient.set(mat.getRotate());
+			//if (id == 0) { // HMD not working yet ... don't know if it's sender or receiver error (likely sender)
+			//	trackers[id].pos.set(-tempPos.x, tempPos.z, tempPos.y); // why doesn't mat.getTranslation() work?
+			//	trackers[id].orient.set(mat.getRotate());
+
+			//	// update the internal ofNode matrix
+			//	trackers[id].setTransformMatrix(ofMatrix4x4(trackers[id].orient));
+			//	trackers[id].setPosition(trackers[id].pos);
+			//	trackers[id].setOrientation(trackers[id].orient);
+			//}
+			//else {
+				trackers[id].pos.set(tempPos.x, -tempPos.z, tempPos.y); // why doesn't mat.getTranslation() work?
+				trackers[id].orient.set(mat.getRotate());
+				
+				// update the internal ofNode matrix
+				trackers[id].setTransformMatrix(mat);
+				trackers[id].setPosition(trackers[id].pos);
+				trackers[id].setOrientation(trackers[id].orient);
+			//}
 
 
-			// update the internal ofNode matrix
-			trackers[id].setTransformMatrix(mat);
-			trackers[id].setPosition(trackers[id].pos);
-			trackers[id].setOrientation(trackers[id].orient);
+
 
 			// update the tracker trail
 			trackers[id].update();
 
 
-			// debugging
-			string msg_string;
+			// debug
+			/*if (id == 0) {
 
-			msg_string = "tracker";
-			msg_string += ": ";
-			msg_string += m.getAddress();
-			msg_string += " | ID: ";
-			msg_string += ofToString(id);
-			msg_string += " | coords: ";
-			msg_string += ofToString(trackers[id].pos);
-			msg_string += ", ";
-			msg_string += ofToString(trackers[id].orient);
+				string msg_string;
 
-           //cout << msg_string << endl;
+				msg_string = "tracker";
+				msg_string += ": ";
+				msg_string += m.getAddress();
+				msg_string += " | ID: ";
+				msg_string += ofToString(id);
+				msg_string += " | coords: ";
+				msg_string += ofToString(trackers[id].pos);
+				msg_string += ", ";
+				msg_string += ofToString(trackers[id].orient);
 
-		//}
-		//else if (m.getAddress() == "/controller/right") {
-		//}
+				cout << msg_string << endl;
+			}*/
+
+		}
+
 
 	}
 }
@@ -167,10 +204,11 @@ void ofApp::drawViewports() {
 			ofDrawAxis(1000);
 			ofPopStyle();
 			ofNoFill();
+
 			
 			// draw only the trackers that are currently being tracked
 			for (auto &tracker : trackers) {
-				if (trackedObjects[tracker.second.id])
+				if (trackingIDs[tracker.second.id] && tracker.second.isConnected && tracker.second.id!=0) // don't show HMD yet ... not working
 					tracker.second.draw();
 			}
 
@@ -210,9 +248,8 @@ void ofApp::drawViewports() {
 			
 				// draw only the trackers that are currently being tracked
 				for (auto &tracker : trackers) {
-					if (trackedObjects[tracker.second.id]) {
+					if (trackingIDs[tracker.second.id] && tracker.second.isConnected && tracker.second.id != 0) // don't show HMD yet ... not working
 						tracker.second.draw();
-					}
 				}
 
 				ofDisableDepthTest();
@@ -357,10 +394,11 @@ void ofApp::setupGUI() {
 	params_osc.add(msg_listening.set("PORT", ""));
 
 	params_tracking.setName("Tracking Options");
-	params_tracking.add(trackedObjects[0].set("Tracker " + ofToString(0), false));
-	params_tracking.add(trackedObjects[1].set("Tracker " + ofToString(1), false));
-	params_tracking.add(trackedObjects[2].set("Tracker " + ofToString(2), false));
-	params_tracking.add(trackedObjects[3].set("Tracker " + ofToString(3), false));
+	params_tracking.add(trackingIDs[0].set("HMD", false));
+	params_tracking.add(trackingIDs[1].set("Left Controller", false));
+	params_tracking.add(trackingIDs[2].set("Right Controller", false));
+	params_tracking.add(trackingIDs[3].set("Tracker " + ofToString(1), false));
+	params_tracking.add(trackingIDs[4].set("Tracker " + ofToString(2), false));
 
 	panel.setup(params_osc);
 	panel.add(reconnect.setup("Reconnect"));
@@ -489,13 +527,27 @@ void ofApp::loadModels() {
 		}
 	}
 
-	// load 3D model of Vive Tracker
+	// load 3D model of Vive Controller
 	if (loader.loadModel(ofToDataPath("models/vr_controller_vive_1_5.obj"), false)) {
 		cout << ofToString(loader.getNumMeshes()) << endl;
 		controllerMesh = loader.getMesh(0);
 
 		// adapt tracker mesh configuration to real world coordinates
 		for (auto &vert : controllerMesh.getVertices()) {
+			// scale from meters to millimeters
+			vert *= 1000;
+		}
+	}
+
+	// load 3D model of Generic HMD
+	if (loader.loadModel(ofToDataPath("models/generic_hmd.obj"), false)) {
+		cout << ofToString(loader.getNumMeshes()) << endl;
+		hmdMesh = loader.getMesh(0);
+
+		// adapt tracker mesh configuration to real world coordinates
+		for (auto &vert : hmdMesh.getVertices()) {
+			// flip around the Z-axes
+			vert.rotate(180, ofVec3f(0, 0, 1));
 			// scale from meters to millimeters
 			vert *= 1000;
 		}

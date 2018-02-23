@@ -55,8 +55,12 @@ class ofApp : public ofBaseApp {
 			ofMesh mesh;
 			ofPolyline trail;
 
+			bool isConnected = false;
+
 
 			void update() {
+
+				isConnected = true;
 
 				trail.addVertex(pos);
 				if (trail.getVertices().size() > 75)
@@ -98,6 +102,7 @@ class ofApp : public ofBaseApp {
 		ofxAssimpModelLoader loader;
 		ofMesh trackerMesh;
 		ofMesh controllerMesh;
+		ofMesh hmdMesh;
 		
 		/////////////////////////////////////////
 		// GUI
@@ -122,7 +127,7 @@ class ofApp : public ofBaseApp {
 		void reconnectBtnPressed();
 
 		ofParameterGroup params_tracking;
-		map<int, ofParameter<bool> > trackedObjects;
+		map<int, ofParameter<bool> > trackingIDs;
 		
 
 		void drawViewports();
