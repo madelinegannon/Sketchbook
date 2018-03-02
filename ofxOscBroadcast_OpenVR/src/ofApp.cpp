@@ -479,6 +479,23 @@ void  ofApp::render(vr::Hmd_Eye nEye)
 void ofApp::controllerEvent(ofxOpenVRControllerEventArgs& args)
 {
 	cout << "ofApp::controllerEvent > role: " << (int)args.controllerRole << " - event type: " << (int)args.eventType << " - button type: " << (int)args.buttonType << " - x: " << args.analogInput_xAxis << " - y: " << args.analogInput_yAxis << endl;
+
+	ofxOscMessage m;
+	m.setAddress("/controller/event/");
+	string address;
+	if ((int)args.controllerRole == vr::TrackedControllerRole_LeftHand) {
+		m.addInt32Arg(vr::TrackedControllerRole_RightHand); // <-- this is weird (with Oculus)
+	}
+	else {
+		m.addInt32Arg(vr::TrackedControllerRole_LeftHand);
+	}
+	// send button type
+	m.addInt32Arg((int)args.buttonType);
+	// add event type
+	m.addInt32Arg((int)args.eventType);
+
+	broadcastToClients(m);
+
 }
 
 //--------------------------------------------------------------
