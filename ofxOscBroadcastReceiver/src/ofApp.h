@@ -4,6 +4,7 @@
 #include "ofxOsc.h"
 #include "ofxGui.h"
 #include "ofxAssimpModelLoader.h"
+#include "Robot.h"
 
 // listen on port 9001
 #define PORT 9001
@@ -40,6 +41,8 @@ class ofApp : public ofBaseApp {
 		ofTrueTypeFont font;
 		ofxOscReceiver receiver;
 		void checkForMessages();
+
+		Robot robot;
 		
 
 		// Connecting to OpenVR

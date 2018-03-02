@@ -20,6 +20,8 @@ void ofApp::setup(){
 
 	// load world models
 	loadModels();
+
+	robot.setup(Robot::MINITAUR);
 }
 
 //--------------------------------------------------------------
@@ -205,11 +207,19 @@ void ofApp::drawViewports() {
 			ofPopStyle();
 			ofNoFill();
 
+
 			
 			// draw only the trackers that are currently being tracked
 			for (auto &tracker : trackers) {
-				if (trackingIDs[tracker.second.id] && tracker.second.isConnected && tracker.second.id!=0) // don't show HMD yet ... not working
+				if (trackingIDs[tracker.second.id] && tracker.second.isConnected && tracker.second.id != 0) { // don't show HMD yet ... not working
+					// temp for now
+					ofPushMatrix();
+					ofMultMatrix(tracker.second.getGlobalTransformMatrix());
+					robot.draw();
+					ofPopMatrix();
+
 					tracker.second.draw();
+				}
 			}
 
 			ofDisableDepthTest();
@@ -248,8 +258,15 @@ void ofApp::drawViewports() {
 			
 				// draw only the trackers that are currently being tracked
 				for (auto &tracker : trackers) {
-					if (trackingIDs[tracker.second.id] && tracker.second.isConnected && tracker.second.id != 0) // don't show HMD yet ... not working
+					if (trackingIDs[tracker.second.id] && tracker.second.isConnected && tracker.second.id != 0) { // don't show HMD yet ... not working
+						// temp for now
+						ofPushMatrix();
+						ofMultMatrix(tracker.second.getGlobalTransformMatrix());
+						robot.draw();
+						ofPopMatrix();
+						
 						tracker.second.draw();
+					}
 				}
 
 				ofDisableDepthTest();
