@@ -40,6 +40,8 @@ ofxOscBroadcast_OpenVR/bin/*
 !ofxOscBroadcast_OpenVR/bin/data
 ofxOscBroadcastReceiver_Oculus/bin/*
 !ofxOscBroadcastReceiver_Oculus/bin/data
+template_3DViewports/bin/*
+!template_3DViewports/bin/data
 
 *.db-shm
 *.db-wal
