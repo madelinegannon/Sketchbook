@@ -14,6 +14,11 @@ void ofApp::setup(){
 	m.setAddress("/ping");
 	sender.sendMessage(m);
 
+	// setup Wekinator connection
+	wek_receiver.setup(wek_receiverPort);
+	wek_sender.setup("localhost", wek_senderPort);
+
+
 	// set up GUI
 	setupViewports();
 	setupGUI();
@@ -26,6 +31,8 @@ void ofApp::setup(){
 	gripperL.setup();
 	gripperR.setup();
 
+	node.setParent(gripperL);
+	node.setScale(10);
 
 	table.setWidth(2000);
 	table.setHeight(750);
@@ -36,6 +43,7 @@ void ofApp::update() {
 
 	// check for incoming OSC messages
 	checkForMessages();
+	wek_checkForMessages();
 
 	if (viewport_showAll)
 		findActiveViewportID();
@@ -52,7 +60,19 @@ void ofApp::update() {
 			else if (offsetMode)
 				pos.y += offset;
 			else if (dynamicOffsetMode)
-				pos.y = (pos.y*-1)/ 2;		
+				pos.y = (pos.y*-1)/ 2;
+
+			
+			//node.setPosition( );
+			//node.lookAt(node.lookAt(mirroredTCP, ofVec3f(0,0,1));
+			//node.setGlobalPosition(mirroredTCP);
+			//ofQuaternion q = node.getGlobalOrientation();
+
+			//// modify orientation
+			//q *= q.conj();
+			//q.makeRotate(90, 1, 0, 0);
+			//q *= node.getOrientationQuat();
+
 			
 			gripperL.setGlobalPosition(pos);
 			if (conjMode)
@@ -81,7 +101,7 @@ void ofApp::update() {
 				pos.y /= 2;
 
 			gripperR.setPosition(pos);
-			gripperR.setOrientation(tracker.second.getGlobalOrientation().conj());
+			gripperR.setOrientation(tracker.second.getGlobalOrientation());
 
 			if (tracker.second.triggerPressed) {
 				gripperR.close();
@@ -279,6 +299,23 @@ void ofApp::checkForMessages() {
 	}
 }
 
+
+//--------------------------------------------------------------
+void ofApp::wek_checkForMessages() {
+
+	// check for waiting messages
+	while (wek_receiver.hasWaitingMessages()) {
+		// get the next message
+		ofxOscMessage m;
+		wek_receiver.getNextMessage(m);
+
+		if (m.getAddress() == "/wek/outputs") {
+
+		}
+
+	}
+}
+
 //--------------------------------------------------------------
 void ofApp::drawViewports() {
 
@@ -297,8 +334,10 @@ void ofApp::drawViewports() {
 			ofPopStyle();
 			ofNoFill();
 
-			gripperL.draw();
+			//gripperL.draw();
 			gripperR.draw();
+
+			node.draw();
 			
 			ofPushStyle();
 			
@@ -330,7 +369,8 @@ void ofApp::drawViewports() {
 					//ofPopMatrix();
 
 					tracker.second.draw();
-					
+
+
 					ofPushStyle();
 					ofSetColor(ofColor::aqua, 100);
 					if (tracker.first == 1) { // left controller

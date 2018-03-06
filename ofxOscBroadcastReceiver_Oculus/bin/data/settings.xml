@@ -11,9 +11,9 @@
 <OSC_Parameters/>
 <Interaction_Modes>
 		<Mirror_Mode>0</Mirror_Mode>
-		<Offset_Mode>1</Offset_Mode>
+		<Offset_Mode>0</Offset_Mode>
 		<Offset>0</Offset>
-	<Conjugate_Mode>1</Conjugate_Mode>
+	<Conjugate_Mode>0</Conjugate_Mode>
 	<Dynamic_Offset_Mode>0</Dynamic_Offset_Mode>
 	</Interaction_Modes>
 </OSC_Parameters>

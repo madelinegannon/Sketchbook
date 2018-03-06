@@ -42,7 +42,16 @@ class ofApp : public ofBaseApp {
 		ofxOscReceiver receiver;
 		void checkForMessages();
 
+		// Wekinator connection
+		ofxOscSender wek_sender;
+		ofxOscReceiver wek_receiver;
+		int wek_senderPort = 6448;
+		int wek_receiverPort = 12000;
+		void wek_checkForMessages();
+
 		Robot robot;
+
+		ofNode node;
 		
 		// Connecting to OpenVR
 		class Tracker : public ofNode{
@@ -105,16 +114,16 @@ class ofApp : public ofBaseApp {
 					else
 						ofSetColor(ofColor::red, 200);
 				}
-				
+					
 				//ofDrawBox(50);
 				mesh.drawWireframe();
 				ofPopMatrix();
-
-				
+	
 				ofSetLineWidth(5);
 				ofSetColor(ofColor::paleVioletRed, 100);
 				trail.draw();
 
+				
 				ofPopStyle();
 			};
 		};
