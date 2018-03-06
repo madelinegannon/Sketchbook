@@ -1,0 +1,15 @@
+<OSC_Parameters>
+	<IP_Addr>10.2.169.178</IP_Addr>
+	<PORT>9001</PORT>
+	<Tracking_Options>
+		<HMD>0</HMD>
+		<Left_Controller>0</Left_Controller>
+		<Right_Controller>0</Right_Controller>
+		<Tracker_1>1</Tracker_1>
+		<Tracker_2>0</Tracker_2>
+	</Tracking_Options>
+<OSC_Parameters/>
+<Navigation>
+		<Show_Gizmo>1</Show_Gizmo>
+	</Navigation>
+</OSC_Parameters>

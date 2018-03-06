@@ -1,0 +1,4 @@
+ofxAssimpModelLoader
+ofxGizmo
+ofxGui
+ofxOsc
