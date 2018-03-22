@@ -88,6 +88,10 @@ void ofApp::update() {
 
 			else
 				gripperL.open();
+
+			tracker.second.ribbon_width.set(ribbon_width);
+			tracker.second.ribbon_offset.set(ribbon_offset);
+			tracker.second.ribbon_color_alpha.set(ribbon_color_alpha);
 		}
 
 		if (tracker.first == 2) { // right controller
@@ -109,12 +113,27 @@ void ofApp::update() {
 
 			else
 				gripperR.open();
+
+			tracker.second.ribbon_width.set(gripperR.openingDist);
+			//cout << tracker.second.ribbon_width << endl;
+
+			tracker.second.ribbon_width.set(ribbon_width);
+			tracker.second.ribbon_offset.set(ribbon_offset);
+			tracker.second.ribbon_color_alpha.set(ribbon_color_alpha);
+			
+			if (ribbon_clear) {
+				tracker.second.ribbon_clear.set(true);
+				ribbon_clear.set(false);
+			}
+
 		}
 
-
+		
 
 		gripperL.update();
 		gripperR.update();
+
+		
 	}
 }
 
@@ -175,6 +194,9 @@ void ofApp::checkForMessages() {
 				Tracker t;
 				t.id = id;
 				trackers[id] = t;
+
+				if (id == 2)
+					panel.add(trackers[id].params_ribbon);
 
 				if (m.getAddress() == "/tracker")
 					trackers[id].mesh = trackerMesh;
@@ -344,7 +366,7 @@ void ofApp::drawViewports() {
 			ofPushMatrix();
 			//ofTranslate(0, 500, 0);
 			ofSetColor(ofColor::dimGray);
-			table.draw();
+			//table.draw();
 			ofSetColor(ofColor::antiqueWhite);
 			table.drawWireframe();
 			ofPopMatrix();
@@ -423,7 +445,7 @@ void ofApp::drawViewports() {
 
 				ofPushStyle();
 				ofSetColor(ofColor::dimGray);
-				table.draw();
+				//table.draw();
 				ofSetColor(ofColor::antiqueWhite);
 				table.drawWireframe();
 				ofPopStyle();
@@ -606,10 +628,17 @@ void ofApp::setupGUI() {
 	params_interaction.add(dynamicOffsetMode.set("Dynamic Offset Mode", true));
 	params_interaction.add(conjMode.set("Conjugate Mode", true));
 
+	params_ribbon.setName("Gripper Ribbon");
+	params_ribbon.add(ribbon_clear.set("Clear", false));
+	params_ribbon.add(ribbon_width.set("Width", 200, 0, 500));
+	params_ribbon.add(ribbon_offset.set("Offset", 0, -500, 500));
+	params_ribbon.add(ribbon_color_alpha.set("Transparency", 100, 0, 255));
+
 	panel.setup(params_osc);
 	panel.add(reconnect.setup("Reconnect"));
 	panel.add(params_tracking);
 	panel.add(params_interaction);
+	panel.add(params_ribbon);
 
 
 	panel.setPosition(ofGetWidth() - 200 - 10, 10);

@@ -56,7 +56,11 @@ class ofApp : public ofBaseApp {
 		// Connecting to OpenVR
 		class Tracker : public ofNode{
 		public:
-			Tracker() {};
+			Tracker() { 
+				ribbon.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+
+				
+			};
 
 			int id;
 			ofVec3f pos;
@@ -65,6 +69,16 @@ class ofApp : public ofBaseApp {
 
 			ofMesh mesh;
 			ofPolyline trail;
+			ofMesh ribbon;
+			ofColor color = ofColor::aliceBlue;
+		
+			ofParameterGroup params_ribbon;
+			ofParameter<bool> ribbon_clear;
+			ofParameter<float> ribbon_width = 200;
+			ofParameter<float> ribbon_offset = 200;
+			ofParameter<int> ribbon_color_start;
+			ofParameter<int> ribbon_color_end;
+			ofParameter<int> ribbon_color_alpha;
 
 			bool isConnected = false;
 
@@ -80,9 +94,57 @@ class ofApp : public ofBaseApp {
 
 				isConnected = true;
 
+				// update the ribbon
+				if (trail.size() > 10) {
+
+					auto pos_prev = trail.getVertices()[trail.getVertices().size()-1];
+					float minDist = 5;
+					float maxDist = 150;
+					float dist = pos.distance(pos_prev);
+					if (dist > minDist && dist < maxDist) {
+
+						float width = ribbon_width;
+						cout << "gripper width: " << width << endl;
+
+						ofVec3f top = ofVec3f(width/2, ribbon_offset, 0);
+						ofVec3f btm = ofVec3f(-width/2, ribbon_offset, 0);
+
+						ofMatrix4x4 mat;
+						mat.makeIdentityMatrix();
+						mat.setTranslation(top);
+						mat *= this->getGlobalTransformMatrix();
+
+						top.set(mat.getTranslation());
+
+						mat.makeIdentityMatrix();
+						mat.setTranslation(btm);
+						mat *= this->getGlobalTransformMatrix();
+
+						btm.set(mat.getTranslation());
+
+						ribbon.addVertex(top);
+						ribbon.addVertex(btm);
+
+
+					}
+
+				}
+
+				if (ribbon_clear) {
+					ribbon.getVertices().clear();
+					ribbon_clear = false;
+				}
+
+
 				trail.addVertex(pos);
-				if (trail.getVertices().size() > 75)
+
+	
+				if (trail.getVertices().size() > 500) {
 					trail.getVertices().erase(trail.getVertices().begin());
+
+				}
+
+
 
 			};
 
@@ -116,13 +178,31 @@ class ofApp : public ofBaseApp {
 				}
 					
 				//ofDrawBox(50);
-				mesh.drawWireframe();
+				//mesh.drawWireframe();
 				ofPopMatrix();
 	
 				ofSetLineWidth(5);
-				ofSetColor(ofColor::paleVioletRed, 100);
+				ofSetColor(ofColor::antiqueWhite, 100);
 				trail.draw();
 
+				ofSetColor(ofColor::paleVioletRed, ribbon_color_alpha);
+				ribbon.draw();
+				ofPushStyle();
+
+				ofSetLineWidth(3);
+				ofSetColor(ofColor::violet);
+
+				for (int i = 2; i < ribbon.getVertices().size(); i += 2) {
+
+					
+					float t = ofMap(i, 0, ribbon.getVertices().size(), 0, 1);
+					ofSetColor(color.lerp(ofColor::red, t));
+										
+					ofDrawLine(ribbon.getVertices()[i], ribbon.getVertices()[i - 2]);
+					ofDrawLine(ribbon.getVertices()[i+1], ribbon.getVertices()[i - 1]);	
+				}
+
+				ofPopStyle();
 				
 				ofPopStyle();
 			};
@@ -146,7 +226,9 @@ class ofApp : public ofBaseApp {
 			ofCylinderPrimitive body;
 			ofBoxPrimitive finger1, finger2;
 
+
 			float timer; // 1 = open, 0 = close
+			float openingDist = 0;
 
 			bool isOpen = true;
 			bool isClosed = false;
@@ -180,9 +262,6 @@ class ofApp : public ofBaseApp {
 				openFinger2Pos.set(finger2.getPosition());
 				closePos.set(openFinger1Pos.getInterpolated(openFinger2Pos, .5));
 
-
-
-
 			};
 
 			void open() {
@@ -200,7 +279,7 @@ class ofApp : public ofBaseApp {
 				timer -= .25;// = ofClamp(timer - .1, 1, 0);
 				timer = ofClamp(timer, 0, 1);
 
-				cout << "gripper closed %: " << timer << endl;
+				//cout << "gripper closed %: " << timer << endl;
 
 				if (timer == 1)
 					isClosed = true;
@@ -212,6 +291,8 @@ class ofApp : public ofBaseApp {
 
 				finger1.setPosition(closePos.getInterpolated(openFinger1Pos, timer));
 				finger2.setPosition(closePos.getInterpolated(openFinger2Pos, timer));
+
+				openingDist = 200;
 			};
 
 			void draw() {
@@ -219,6 +300,8 @@ class ofApp : public ofBaseApp {
 
 				ofPushMatrix();
 				ofMultMatrix(this->getGlobalTransformMatrix());
+
+				ofDrawLine(100, 0, 0, -100, 0, 0);
 				
 				
 				ofSetColor(ofColor::dimGray,120);
@@ -230,7 +313,6 @@ class ofApp : public ofBaseApp {
 
 				ofPopMatrix();
 
-
 				ofPopStyle();
 			};
 
@@ -239,6 +321,7 @@ class ofApp : public ofBaseApp {
 		Gripper gripperL;
 		Gripper gripperR;
 
+	
 		ofBoxPrimitive table;
 		
 		/////////////////////////////////////////
@@ -273,6 +356,14 @@ class ofApp : public ofBaseApp {
 		ofParameter<float> offset;
 		ofParameter<bool> dynamicOffsetMode;
 		ofParameter<bool> conjMode;
+
+		ofParameterGroup params_ribbon;
+		ofParameter<bool> ribbon_clear;
+		ofParameter<float> ribbon_width = 200;
+		ofParameter<float> ribbon_offset = 200;
+		ofParameter<int> ribbon_color_start;
+		ofParameter<int> ribbon_color_end;
+		ofParameter<int> ribbon_color_alpha;
 		
 
 		void drawViewports();

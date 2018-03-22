@@ -1,0 +1,6 @@
+ofxAssimpModelLoader
+ofxEasing
+ofxGizmo
+ofxGui
+ofxOsc
+ofxRay

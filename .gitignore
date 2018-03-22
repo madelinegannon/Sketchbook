@@ -42,6 +42,8 @@ ofxOscBroadcastReceiver_Oculus/bin/*
 !ofxOscBroadcastReceiver_Oculus/bin/data
 template_3DViewports/bin/*
 !template_3DViewports/bin/data
+Minitaur_Serial_Viewports_IO/bin/*
+!Minitaur_Serial_Viewports_IO/bin/data
 
 *.db-shm
 *.db-wal

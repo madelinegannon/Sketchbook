@@ -1,0 +1,56 @@
+<COM_Parameters>
+	<COM_PORT>COM9</COM_PORT>
+	<baud>115200</baud>
+	<OSC_Parameters>
+		<IP_Addr>Not Connected...</IP_Addr>
+		<PORT/>
+	</OSC_Parameters>
+	<Tracking_Options>
+		<HMD>0</HMD>
+		<Left_Controller>0</Left_Controller>
+		<Right_Controller>0</Right_Controller>
+		<Tracker_1>0</Tracker_1>
+		<Tracker_2>0</Tracker_2>
+	</Tracking_Options>
+	<Robot_Params>
+		<Show_Gizmo>1</Show_Gizmo>
+		<Lock_Pivot>1</Lock_Pivot>
+		<Pitch__Roll__Height>0.209127, 0, 0.315546</Pitch__Roll__Height>
+		<Limb_0>
+			<angle_pk_0>0.8</angle_pk_0>
+			<angle_pd_0>0.03</angle_pd_0>
+			<ext_pk_0>120</ext_pk_0>
+			<ext_pd_0>4</ext_pd_0>
+		</Limb_0>
+		<Limb_1>
+			<angle_pk_1>0.8</angle_pk_1>
+			<angle_pd_1>0.03</angle_pd_1>
+			<ext_pk_1>120</ext_pk_1>
+			<ext_pd_1>4</ext_pd_1>
+		</Limb_1>
+		<Limb_2>
+			<angle_pk_2>0.8</angle_pk_2>
+			<angle_pd_2>0.03</angle_pd_2>
+			<ext_pk_2>120</ext_pk_2>
+			<ext_pd_2>4</ext_pd_2>
+		</Limb_2>
+		<Limb_3>
+			<angle_pk_3>0.8</angle_pk_3>
+			<angle_pd_3>0.03</angle_pd_3>
+			<ext_pk_3>120</ext_pk_3>
+			<ext_pd_3>4</ext_pd_3>
+		</Limb_3>
+	<Lock_Gains>0</Lock_Gains>
+		<Reset_Gains>0</Reset_Gains>
+		<Send_Gains>0</Send_Gains>
+	</Robot_Params>
+<COM_Parameters/>
+<Agent_Parameters>
+		<radius>275.45</radius>
+		<speedMax>10</speedMax>
+		<forceMax>3.5</forceMax>
+		<bounce>0</bounce>
+		<gravity>0</gravity>
+		<gravityVec>0, 0, -1</gravityVec>
+	</Agent_Parameters>
+</COM_Parameters>

@@ -12,8 +12,15 @@
 <Interaction_Modes>
 		<Mirror_Mode>0</Mirror_Mode>
 		<Offset_Mode>0</Offset_Mode>
-		<Offset>0</Offset>
+		<Offset>790.816</Offset>
 	<Conjugate_Mode>0</Conjugate_Mode>
 	<Dynamic_Offset_Mode>0</Dynamic_Offset_Mode>
 	</Interaction_Modes>
+<Gripper_Ribbon>
+		<Width>-71.4286</Width>
+		<Offset>40.8163</Offset>
+		<Transparency>255</Transparency>
+	<Clear>0</Clear>
+	</Gripper_Ribbon>
+<group/>
 </OSC_Parameters>
