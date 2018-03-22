@@ -40,31 +40,22 @@ class Agent  {
 
 		float mapSpeed(float dist, float radius, float speedMax);
 
-		enum
-		{
-			CIRCULAR,
-			LINEAR,
-			QUADRATIC,
-			CUBIC,
-			QUARTIC,
-			QUINTIC
+		vector<ofxeasing::function> easings{
+			ofxeasing::linear::easeIn,
+			ofxeasing::quad::easeIn,
+			ofxeasing::cubic::easeIn,
+			ofxeasing::quart::easeIn,
+			ofxeasing::quint::easeIn,
+			ofxeasing::circ::easeIn,
+			ofxeasing::sine::easeIn,
+			ofxeasing::exp::easeIn,
+			ofxeasing::elastic::easeOut,
+			ofxeasing::bounce::easeOut,
+			ofxeasing::back::easeOut,
 		};
 
-
-
 		
-
-		//ofxTween::ofxEasingType easingType = ofxTween::easeInOut;
-
-		//ofxEasingCirc easeCirc;
-		//ofxEasingLinear easeLinear;
-		//ofxEasingQuad easeQuad;
-		//ofxEasingCubic easeCubic;
-		//ofxEasingQuart easeQuart;
-		//ofxEasingQuint easeQuint;
-
-		//float clamp = 1;
-
+		
 		//// --------- PARAMS ---------
 
 		ofParameterGroup params;
@@ -80,7 +71,7 @@ class Agent  {
 		//ofParameter<float> randomLerp;
 		//float newRandomStartTime;
 
-		//ofParameter<int> tweenType;
+		ofParameter<int> easingType;
 		//ofParameter<float> noiseScale;
 		//ofParameter<bool> newRandomPos;
 		//ofParameter<bool> useRandomPos;

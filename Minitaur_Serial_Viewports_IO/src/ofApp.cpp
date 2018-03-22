@@ -27,6 +27,7 @@ void ofApp::setup(){
 	// set up GUI
 	setupViewports();
 	setupGUI();
+	findActiveViewportID();
 
 	// load world models
 	loadModels();
@@ -38,7 +39,9 @@ void ofApp::setup(){
 	gizmo_lookAt.enableMouseInput();
 	gizmo_lookAt.setViewDimensions(ofGetWidth(), ofGetHeight());
 
-
+	// setup Bullet world
+	setupPhysics();
+	
 }
 
 //--------------------------------------------------------------
@@ -70,11 +73,17 @@ void ofApp::update() {
 	}
 
 	if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_AGENT) {
-		agent.seek(gizmo_lookAt.getMatrix().getTranslation());
+		agent.arrive(gizmo_lookAt.getMatrix().getTranslation());
 		agent.update();
 
 		robot.setLookAtPt(agent.pos);
 		robot.update();
+	}
+
+	else if (robot.behaviorMode == Robot::BEHAVIOR::PHYSICS) {
+		world.update();
+
+		// picking not working yet ... wrong cam?
 	}
 
 	
@@ -467,6 +476,28 @@ void ofApp::drawViewport(int i) {
 	if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_TRACKER || robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_AGENT) {
 		gizmo_lookAt.draw(*cams[i]);
 		agent.draw();
+
+	}
+	else if (robot.behaviorMode == Robot::BEHAVIOR::PHYSICS) {
+		ofPushStyle();
+		world.drawDebug();
+		
+		ofFill();
+		ofSetColor(100);
+		ground.draw();
+
+		ofNoFill();
+		for (int i = 0; i < bounds.size() - 1; i++) {
+			bounds[i]->draw();
+		}
+
+		ofFill();
+		ofSetColor(200);
+		box->draw();
+
+		fulcrum->draw();
+		
+		ofPopStyle();
 	}
 
 	// draw only the trackers that are currently being tracked
@@ -565,6 +596,8 @@ void ofApp::handleViewportPresets(int key) {
 				if (viewport_activeID == i)
 					viewports[i]->set(0, 0, ofGetWindowWidth(), ofGetWindowHeight());
 			}
+
+			world.setCamera(cams[viewport_activeID]);
 		}
 
 	}
@@ -829,7 +862,109 @@ void ofApp::printmap(map<int, string> & m) {
 
 
 //--------------------------------------------------------------
+void ofApp::setupPhysics() {
+
+	// setup the world
+	world.setup();
+	world.enableGrabbing();
+	world.setCamera(cams[3]);
+	world.setGravity(ofVec3f(0, 0, -250));
+
+	// enable mouse pick events 
+	ofAddListener(world.MOUSE_PICK_EVENT, this, &ofApp::mousePickEvent);
+
+	// enable collision  events 
+	//world.enableCollisionEvents();
+	//ofAddListener(world.COLLISION_EVENT, this, &ofApp::onCollision);
+
+	// create a bounding area
+	ground.create(world.world, ofVec3f(0., 0., 5.5), 0., 3000.f, 3000.f, 1.f);
+	ground.setProperties(.25, .95);
+	ground.add();
+
+
+	// try a bounding box for picking
+	ofVec3f startLoc;
+	ofPoint dimens;
+	boundsWidth = 3000.;
+	float hwidth = boundsWidth * .5;
+	float depth = 2.;
+	float hdepth = depth * .5;
+	boundsShape = new ofxBulletCustomShape();
+	boundsShape->create(world.world, ofVec3f(0, 0, 0), 10.);
+
+	for (int i = 0; i < 6; i++) {
+		bounds.push_back(new ofxBulletBox());
+		if (i == 0) { // ground //
+			startLoc.set(0., hwidth + hdepth, 0.);
+			dimens.set(boundsWidth, depth, boundsWidth);
+		}
+		else if (i == 1) { // back wall //
+			startLoc.set(0, 0, hwidth + hdepth);
+			dimens.set(boundsWidth, boundsWidth, depth);
+		}
+		else if (i == 2) { // right wall //
+			startLoc.set(hwidth + hdepth, 0, 0.);
+			dimens.set(depth, boundsWidth, boundsWidth);
+		}
+		else if (i == 3) { // left wall //
+			startLoc.set(-hwidth - hdepth, 0, 0.);
+			dimens.set(depth, boundsWidth, boundsWidth);
+		}
+		else if (i == 4) { // ceiling //
+			startLoc.set(0, -hwidth - hdepth, 0.);
+			dimens.set(boundsWidth, depth, boundsWidth);
+		}
+		else if (i == 5) { // front wall //
+			startLoc.set(0, 0, -hwidth - hdepth);
+			dimens.set(boundsWidth, boundsWidth, depth);
+		}
+		btBoxShape* boxShape = ofBtGetBoxCollisionShape(dimens.x, dimens.y, dimens.z);
+		boundsShape->addShape(boxShape, startLoc);
+
+		bounds[i]->create(world.world, startLoc, 0., dimens.x, dimens.y, dimens.z);
+		bounds[i]->setProperties(.25, .95);
+		bounds[i]->add();
+	}
+
+
+	// setup the fulcrum to balance the body
+	fulcrum = new ofxBulletCone();
+	
+	// reorient the cone so that Z is up
+	btTransform tr;
+	tr.setIdentity();
+	tr.setOrigin( btVector3(0, 0, 100));
+	btQuaternion quat;
+	quat.setEuler(0, 90, 0);
+	tr.setRotation(quat);
+	fulcrum->create(world.world, tr, 1000, 50, 140);
+	//fulcrum->setActivationState(DISABLE_DEACTIVATION);
+	fulcrum->add();
+	
+
+
+	// setup robot body
+	boxShape = ofBtGetBoxCollisionShape(240, 410, 100);
+	box = new ofxBulletBox();
+	box->init(boxShape);
+	box->create(world.world, ofVec3f(0, 0, 300), 1);
+	box->setActivationState(DISABLE_DEACTIVATION);
+	box->add();
+}
+
+//--------------------------------------------------------------
+void ofApp::mousePickEvent(ofxBulletMousePickEvent &e) {
+
+	cams[viewport_activeID]->disableMouseInput();
+
+		cout << "touch!" << endl;
+}
+
+//--------------------------------------------------------------
 void ofApp::mouseReleased(int x, int y, int button){
+	if (!cams[viewport_activeID]->getMouseInputEnabled())
+		cams[viewport_activeID]->enableMouseInput();
 
 }
 

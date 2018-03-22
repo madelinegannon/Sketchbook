@@ -7,9 +7,9 @@ void Agent::setup() {
 	params.setName("Agent Parameters");
 
 	params.add(radius.set("radius", 50, 1, 500));
-	params.add(speedMax.set("speedMax", 10, 1, 25));
-	params.add(forceMax.set("forceMax", 3.5, .1, 5));
-	//params.add(tweenType.set("tweenType", 5, 0, 6));
+	params.add(speedMax.set("speedMax", 10, 1, 125));
+	params.add(forceMax.set("forceMax", 3.5, .1, 25));
+	params.add(easingType.set("easingType", 0, 0, 10));
 	params.add(bounce.set("bounce", false));
 	params.add(gravity.set("gravity", false));
 	params.add(gravityVec.set("gravityVec", ofVec3f(0, 0, -1), ofVec3f(-5, -5, -5), ofVec3f(5, 5, 5)));
@@ -111,13 +111,16 @@ void Agent::draw() {
 	ofSetColor(255, 0, 255, 120);
 	ofNoFill();
 	ofDrawBox(30);
+	ofSetLineWidth(3);
+	ofSetColor(ofColor::red, 60);
 	ofDrawCircle(ofVec3f(), radius);
 	ofRotateX(90);
+	ofSetColor(ofColor::green,60);
 	ofDrawCircle(ofVec3f(), radius);
 	ofRotateY(90);
+	ofSetColor(ofColor::blue, 60);
 	ofDrawCircle(ofVec3f(), radius);
 	ofPopMatrix();
-
 
 	ofPopStyle();
 
@@ -148,8 +151,7 @@ void Agent::arrive(ofVec3f &target) {
 	// if we are within the arriving radius, dampen the approach
 
 	if (dist < radius) {
-		//float speedMapped = ofMap(dist, 0, radius, 0, speedMax);
-		desired.normalize().scale(speedMax);// mapSpeed(dist, radius, speedMax));
+		desired.normalize().scale(mapSpeed(dist, radius, speedMax));
 	}
 	else {
 		desired.normalize();
@@ -170,24 +172,8 @@ void Agent::applyForce(ofVec3f force) {
 	accel = accel + force;
 }
 
-float Agent::mapSpeed(float dist, float radius, float speedMax)
-{
-	float speedMapped;
-
-	//if (tweenType == CIRCULAR)
-	//	speedMapped = ofxTween::map(dist, 0, radius, 0, speedMax, clamp, easeCirc, easingType);
-	//else if (tweenType == QUADRATIC)
-	//	speedMapped = ofxTween::map(dist, 0, radius, 0, speedMax, clamp, easeQuad, easingType);
-	//else if (tweenType == CUBIC)
-	//	speedMapped = ofxTween::map(dist, 0, radius, 0, speedMax, clamp, easeCubic, easingType);
-	//else if (tweenType == QUARTIC)
-	//	speedMapped = ofxTween::map(dist, 0, radius, 0, speedMax, clamp, easeQuart, easingType);
-	//else if (tweenType == QUINTIC)
-	//	speedMapped = ofxTween::map(dist, 0, radius, 0, speedMax, clamp, easeQuint, easingType);
-	//else
-	//	speedMapped = ofxTween::map(dist, 0, radius, 0, speedMax, clamp, easeLinear, easingType);
-
-	return speedMapped;
+float Agent::mapSpeed(float dist, float radius, float speedMax){		
+	return ofxeasing::map_clamp(dist, 0, radius, 0, speedMax, easings[easingType]);
 }
 
 //--------------------------------------------------------------

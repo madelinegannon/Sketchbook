@@ -67,7 +67,7 @@ void Robot::draw() {
 
 	pivot.draw();
 
-	if (behaviorMode == LOOKAT_TRACKER) {
+	if (behaviorMode == LOOKAT_TRACKER || behaviorMode == LOOKAT_AGENT) {
 		ofDrawLine(pivot.getGlobalPosition(), lookAtPt);
 	}
 
@@ -91,6 +91,7 @@ void Robot::setupGUI() {
 	params.setName("Robot Params");
 	params.add(showGizmo.set("Show Gizmo", true));
 	params.add(lockPivot.set("Lock Pivot", true));
+	params.add(behaviorMode.set("Behavior Mode", 6, 0, 6));
 	params.add(PRZ.set("Pitch, Roll, Height", ofVec3f(0, 0, 0), ofVec3f(-.5, -.5, .14), ofVec3f(.5, .5, .25)));
 
 	params.add(lockGains.set("Lock Gains", false));

@@ -1,4 +1,5 @@
 ofxAssimpModelLoader
+ofxBullet
 ofxEasing
 ofxGizmo
 ofxGui

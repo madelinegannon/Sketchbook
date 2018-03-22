@@ -6,6 +6,7 @@
 #include "ofxAssimpModelLoader.h"
 #include "ofxGizmo.h"
 #include "ofxRay.h"
+#include "ofxBullet.h"
 #include "Robot.h"
 #include "Tracker.h"
 #include "Agent.h"
@@ -87,6 +88,29 @@ class ofApp : public ofBaseApp {
 		/////////////////////////////////////////
 		
 
+		/////////////////////////////////////////
+		// Bullet
+		void setupPhysics();
+		void drawPhysics();
+
+		ofxBulletWorldRigid	world;
+		ofxBulletBox ground;
+		ofxBulletCone* fulcrum;
+		vector <ofxBulletBox*> bounds;
+		ofxBulletCustomShape* boundsShape;
+		float boundsWidth;
+
+		btBoxShape*	boxShape;
+		ofxBulletBox* box;
+		
+		void onCollision(ofxBulletCollisionData& cdata);
+		void mousePickEvent(ofxBulletMousePickEvent &e);
+		int	mousePickIndex;
+		ofVec3f	mousePickPos;
+
+		/////////////////////////////////////////
+		
+
 		
 		/////////////////////////////////////////
 		// GUI
@@ -95,8 +119,8 @@ class ofApp : public ofBaseApp {
 		bool bLoadFromFile = true;
 		void setupGUI();
 
-		bool viewport_showAll = true;
-		int viewport_activeID;
+		bool viewport_showAll = false;
+		int viewport_activeID = 3 ;
 		vector<ofRectangle*> viewports;
 		vector<string> viewport_labels;
 

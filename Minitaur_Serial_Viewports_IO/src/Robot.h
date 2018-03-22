@@ -28,8 +28,8 @@ class Robot : public ofNode {
 
 		ofxGizmo gizmo;
 
-		static enum BEHAVIOR {NONE, POSTURE, FOLLOW_TRACKER, FOLLOW_AGENT, LOOKAT_TRACKER, LOOKAT_AGENT, SPRING};
-		int behaviorMode = LOOKAT_AGENT;
+		static enum BEHAVIOR {NONE, POSTURE, FOLLOW_TRACKER, FOLLOW_AGENT, LOOKAT_TRACKER, LOOKAT_AGENT, PHYSICS};
+		ofParameter<int> behaviorMode = PHYSICS;
 
 		void setLookAtPt(ofVec3f lookAtPt);
 		ofVec3f lookAtPt = ofVec3f();
