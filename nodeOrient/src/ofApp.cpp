@@ -9,20 +9,36 @@ void ofApp::setup(){
     body.set(500/scalar, 250/scalar, 50/scalar);
     body.setPosition(0, 0, 0);
     
-    //body.lookAt(ofVec3f(1,1,0));
+    body.lookAt(ofVec3f(1.37,-.4,-1)); // works in XZ plane only :(
     
 
-    limb.setParent(body);
-    limb.setPosition(500/(2*scalar), 250/(2*scalar), 0);
-    
-    toe.setParent(limb);
-    toe.setPosition(0, 0, -240/scalar);
-    
-    motor.setParent(limb);
-    motor.setPosition(0,0,0);
-    motor.motorZero.setParent(motor);
-    motor.motorZero.setPosition(0,0,100);
-    motor.setup();
+    //limb.setParent(body);
+    //limb.setPosition(500/(2*scalar), 250/(2*scalar), 0);
+    //
+    //toe.setParent(limb);
+    //toe.setPosition(0, 0, -240/scalar);
+    //
+    //motor.setParent(limb);
+    //motor.setPosition(0,0,0);
+    //motor.motorZero.setParent(motor);
+    //motor.motorZero.setPosition(0,0,100);
+    //motor.setup();
+
+
+
+	motor.setParent(body);
+	motor.setPosition(500 / (2 * scalar), 250 / (2 * scalar), 0);
+
+	// ... motorZero is body Up direction
+	//motor.motorZero.setParent(motor);
+	//motor.motorZero.setPosition(0, 0, 100);
+	motor.setup();
+
+	limb.setParent(motor);
+	limb.setPosition(0, 0, 0);
+
+	toe.setParent(limb);
+	toe.setPosition(0, 0, -240 / scalar);
 }
 
 //--------------------------------------------------------------
@@ -30,18 +46,13 @@ void ofApp::update(){
     
     float timer = float(ofGetElapsedTimeMillis());
     
-    timer /= timerMax;
-    
+    timer /= timerMax;    
 
     limb.pan(sin(timer+.5));
     
     rotAngle = ofMap(timer, timerMin, timerMax, rotMin, rotMax);
     motor.update(limb.getZAxis());
-    
-    ofVec3f ground = motor.getGlobalPosition();
-    ground.z -= 100;
-    motor.calcAngle(ground);
-    
+
     
     
 }
@@ -53,17 +64,19 @@ void ofApp::draw(){
     ofEnableDepthTest();
     cam.begin();
     
+	// draw world
     ofDrawGrid(100,10,false, false, false,true);
     ofPushStyle();
     ofSetLineWidth(3);
     ofDrawAxis(150);
     ofPopStyle();
     
+
     ofPushStyle();
     ofSetColor(ofColor::cyan);
-    ofDrawLine(pivot.getGlobalPosition(), lookAt.getGlobalPosition());
+    //ofDrawLine(pivot.getGlobalPosition(), lookAt.getGlobalPosition());
     ofSetColor(ofColor::antiqueWhite,100);
-    //body.draw();
+    body.drawWireframe();
     ofSetColor(ofColor::antiqueWhite);
     //body.drawWireframe();
     
@@ -84,7 +97,7 @@ void ofApp::draw(){
     
     ofNoFill();
     pivot.draw();
-    lookAt.draw();
+    //lookAt.draw();
     
     
     cam.end();
