@@ -9,29 +9,14 @@ void ofApp::setup(){
     body.set(500/scalar, 250/scalar, 50/scalar);
     body.setPosition(0, 0, 0);
     
-    body.lookAt(ofVec3f(1.37,-.4,-1)); // works in XZ plane only :(
+	// hard code and orientation for testing
+    body.lookAt(ofVec3f(1.37,-.4,-1)); 
+
+	pivot = body;
     
-
-    //limb.setParent(body);
-    //limb.setPosition(500/(2*scalar), 250/(2*scalar), 0);
-    //
-    //toe.setParent(limb);
-    //toe.setPosition(0, 0, -240/scalar);
-    //
-    //motor.setParent(limb);
-    //motor.setPosition(0,0,0);
-    //motor.motorZero.setParent(motor);
-    //motor.motorZero.setPosition(0,0,100);
-    //motor.setup();
-
-
 
 	motor.setParent(body);
 	motor.setPosition(500 / (2 * scalar), 250 / (2 * scalar), 0);
-
-	// ... motorZero is body Up direction
-	//motor.motorZero.setParent(motor);
-	//motor.motorZero.setPosition(0, 0, 100);
 	motor.setup();
 
 	limb.setParent(motor);
@@ -50,10 +35,9 @@ void ofApp::update(){
 
     limb.pan(sin(timer+.5));
     
-    rotAngle = ofMap(timer, timerMin, timerMax, rotMin, rotMax);
-    motor.update(limb.getZAxis());
+	// calculate the motor angle based on limb orientation
+	motor.update(limb.getZAxis());
 
-    
     
 }
 
@@ -73,31 +57,25 @@ void ofApp::draw(){
     
 
     ofPushStyle();
-    ofSetColor(ofColor::cyan);
-    //ofDrawLine(pivot.getGlobalPosition(), lookAt.getGlobalPosition());
-    ofSetColor(ofColor::antiqueWhite,100);
+    
+	ofSetColor(ofColor::antiqueWhite,100);
     body.drawWireframe();
-    ofSetColor(ofColor::antiqueWhite);
-    //body.drawWireframe();
-    
+  
     // draw leg
-    //limb.draw();
-    //toe.draw();
+    limb.draw();
+    toe.draw();
     ofSetLineWidth(5);
-    ofDrawLine(limb.getGlobalPosition(), toe.getGlobalPosition());
+    ofDrawLine(limb.getGlobalPosition(), toe.getGlobalPosition());  
     
-    ofPopStyle();
+	ofPopStyle();
     
     
     // draw angular rotation
     motor.draw();
 
-    
-    
-    
+ 
     ofNoFill();
     pivot.draw();
-    //lookAt.draw();
     
     
     cam.end();
@@ -119,40 +97,7 @@ void ofApp::draw(){
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
     
-    if (key == ' '){
-        float max = 1000;
-        float min = -max;
-        ofVec3f pt = ofVec3f (ofRandom(min, max),ofRandom(min, max),ofRandom(min, max));
-    
-        lookAt.setGlobalPosition(pt);
-        
-        pivot.lookAt(lookAt.getGlobalPosition(), ofVec3f(0,0,1));
-        lookAt.setOrientation(pivot.getGlobalOrientation());
-
-        //        pivot.rotate(-90, pivot.getXAxis());
-        //        pivot.rotate(90, pivot.getZAxis());
-        ofNode temp = pivot;
-        temp.rotate(-90, temp.getXAxis());
-        temp.rotate(90, temp.getZAxis());
-  
-        body.setGlobalOrientation(temp.getGlobalOrientation());
-        
-        yaw = body.getHeading();
-        pitch = body.getPitch();
-        roll = body.getRoll();
-        height = body.getHeight();
-    }
-    if (key == 'c'){
-        pivot.setOrientation(ofQuaternion());
-        lookAt.setOrientation(pivot.getGlobalOrientation());
-        body.setGlobalOrientation(pivot.getGlobalOrientation());
-        
-        yaw = body.getHeading();
-        pitch = body.getPitch();
-        roll = body.getRoll();
-        height = body.getHeight();
-    }
-
+   
 }
 
 //--------------------------------------------------------------

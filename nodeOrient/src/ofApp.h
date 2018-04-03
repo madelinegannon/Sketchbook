@@ -22,22 +22,17 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
     
     
-    // reorient the body to look at the lookAt node
     ofNode pivot;
-    ofNode lookAt;
     ofBoxPrimitive body;
     
     ofNode limb;
-    ofNode toe;
-    ofPath limbArc;
+	ofNode toe;
     
     float rotAngle =0;
     float timerMin = 0;
     float timerMax = 1000.;
     float rotMin = -.5;
     float rotMax =  .5;
-    
-    float yaw, pitch, roll, height;
     
     ofEasyCam cam;
     
@@ -48,13 +43,8 @@ class ofApp : public ofBaseApp{
         
         Motor(){};
         
-        ofNode motorZero; // holds the ZERO position of the motor
-        float radius = 20;
-        
-        ofVec3f centroid;
-        ofVec3f upVec = ofVec3f(0,0,1);
-        float rotAngle =0;
-        
+        float radius = 20;       
+        float rotAngle =0;      
         ofPath rotationArc;
         
         void setup(){
@@ -98,28 +88,14 @@ class ofApp : public ofBaseApp{
         
         void draw(){
             
-            ofPushStyle();
-            motorZero.draw();
-            
+            ofPushStyle();           
             
             ofPopStyle();
             
             ofPushStyle();
             ofPushMatrix();
             ofMultMatrix(this->getGlobalTransformMatrix());
-            //ofTranslate(this->getGlobalPosition());
-            
-            
-            //ofRotateX(90);
-            ofSetColor(ofColor::red);
-//            ofDrawCircle(0,0,0,radius);
-//            ofSetColor(ofColor::white);
-//            ofDrawLine(0,0,0,0,motorZero.getZ(),0);
-//
-            ofFill();
-            //ofRotateZ(90);
-            //ofSetColor(ofColor::yellow);
-           // rotationArc.draw();
+
 			drawMotor();
             
             ofPopMatrix();
