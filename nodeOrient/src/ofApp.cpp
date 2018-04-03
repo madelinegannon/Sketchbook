@@ -10,7 +10,7 @@ void ofApp::setup(){
     body.setPosition(0, 0, 0);
     
 	// hard code and orientation for testing
-    body.lookAt(ofVec3f(1.37,-.4,-1)); 
+    body.lookAt(ofVec3f(1.37,-2.4,-1)); 
 
 	pivot = body;
     
@@ -43,8 +43,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-    
-    
+        
     ofEnableDepthTest();
     cam.begin();
     
@@ -84,8 +83,7 @@ void ofApp::draw(){
     
     // draw debug info onscreen
     stringstream ss;
-    ss << endl << "{yaw, pitch, roll}: {" << yaw << "," << pitch << "," << roll << "}" << endl;
-    ss << "{pos.x, pos.y, pos.z}: " << ofToString(body.getGlobalPosition()) << endl;
+    ss << endl << "{pos.x, pos.y, pos.z}: " << ofToString(body.getGlobalPosition()) << endl;
     //ss << "lockPivot: " << ofToString(lockPivot) << endl;
     // ss << "lookAtGizmo: " << ofToString(lookAtGizmo) << endl;
     ofDrawBitmapStringHighlight(ss.str(), 10,10);

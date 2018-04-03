@@ -43,8 +43,8 @@ class ofApp : public ofBaseApp{
         
         Motor(){};
         
-        float radius = 20;       
-        float rotAngle =0;      
+        float radius = 10;       
+        float rotAngle = 0;      
         ofPath rotationArc;
         
         void setup(){
@@ -63,9 +63,9 @@ class ofApp : public ofBaseApp{
 			// reset the rotation arc
 			rotationArc.clear();
 			if (rotAngle > 0)
-				rotationArc.arc(ofVec3f(), 20, 20, 0, rotAngle);
+				rotationArc.arc(ofVec3f(), radius, radius, 0, rotAngle);
 			else 
-				rotationArc.arc(ofVec3f(), 20, 20, rotAngle, 0);
+				rotationArc.arc(ofVec3f(), radius, radius, rotAngle, 0);
             
         };
         
@@ -126,17 +126,17 @@ class ofApp : public ofBaseApp{
 			for (int i = 0; i < deg; i++) {
 				ofPushMatrix();
 				ofRotate(i*(360 / deg));
-				ofTranslate(radius + 5, 0);
+				ofTranslate(radius + radius/4, 0);
 				if (i*(360 / deg) == 0 || i*(360 / deg) == 90 || i * (360 / deg) == 180 || i * (360 / deg) == 270) {
 					if (i * (360 / deg) == 270) {
 						ofDrawBitmapString(ofToString(-90), 0, 0, 0);
 					}
 					else
 						ofDrawBitmapString(ofToString(i*(360 / deg)), 0,0,0);
-					ofDrawLine(ofVec3f(-10, 0, 0), ofVec3f(3, 0, 0));
+					ofDrawLine(ofVec3f(-radius/2, 0, 0), ofVec3f(radius / 5, 0, 0));
 				}
 				else {
-					ofDrawLine(ofVec3f(-5, 0, 0), ofVec3f(-10, 0, 0));
+					ofDrawLine(ofVec3f(-radius/2, 0, 0), ofVec3f(-radius/4, 0, 0));
 				}
 
 				ofPopMatrix();
