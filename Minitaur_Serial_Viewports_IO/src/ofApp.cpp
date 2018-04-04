@@ -27,13 +27,21 @@ void ofApp::setup(){
 	// set up GUI
 	setupViewports();
 	setupGUI();
-	findActiveViewportID();
+	if (viewport_showAll)
+		findActiveViewportID();
+	else {
+		viewport_showAll = true;
+		viewport_activeID = 3;
+		handleViewportPresets(' ');
+	}
 
 	// load world models
 	loadModels();
 
 	ofMatrix4x4 mat;
 	mat.setTranslation(1500, 1500, 150);
+	if (robot.behaviorMode == Robot::PHYSICS)
+		mat.setTranslation(0, 0, 75);
 	gizmo_lookAt.setMatrix(mat);
 	gizmo_lookAt.setDisplayScale(1.5);
 	gizmo_lookAt.enableMouseInput();
@@ -72,7 +80,20 @@ void ofApp::update() {
 		}
 	}
 
-	if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_AGENT) {
+	if (robot.behaviorMode == Robot::BEHAVIOR::POSTURE) {
+
+		// make the gizmos larger for the poster demo
+		if (robot.gizmo.getDisplayScale() != 2) {
+			robot.gizmo.setDisplayScale(2);
+		}
+
+		
+		// update the robot (based on gizmo)
+		robot.update();
+
+	}
+
+	else if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_AGENT) {
 		agent.arrive(gizmo_lookAt.getMatrix().getTranslation());
 		agent.update();
 
@@ -81,9 +102,33 @@ void ofApp::update() {
 	}
 
 	else if (robot.behaviorMode == Robot::BEHAVIOR::PHYSICS) {
+
+		// make the gizmos smaller for the physics demo, since we need to be zoomed in
+		if (robot.gizmo.getDisplayScale() != .5) {
+			robot.gizmo.setDisplayScale(.5);
+			gizmo_lookAt.setDisplayScale(.75);
+		}
+
+		// update the physics world
+		// NOTE: picking only works when zoomed waaay in
+
+		// control the sphere with the world's lookAt gizmo
+		btTransform mat;
+		btVector3 pos = toBT(gizmo_lookAt.getMatrix().getTranslation());
+		btQuaternion orient = toBT(gizmo_lookAt.getMatrix().getRotate());
+		mat.setOrigin(pos);
+		mat.setRotation(orient);
+		// set sphere to lookAt gizmo
+		anchors[0]->getRigidBody()->setWorldTransform(mat);
+		
 		world.update();
 
-		// picking not working yet ... wrong cam?
+		// update the robot's gizmo
+		robot.gizmo.setMatrix(box->getTransformationMatrix());
+
+		// update the robot (based on gizmo)
+		robot.update();
+
 	}
 
 	
@@ -93,11 +138,7 @@ void ofApp::update() {
 		robot.setLookAtPt(gizmo_lookAt.getMatrix().getTranslation());
 		robot.update();
 
-
-		
-
-
-		// if we are using the vive tracker
+		// when we are using the vive tracker
 		if (trackers.size() > 0 && trackers[3].isConnected &&
 			ofGetElapsedTimeMillis() - tLastMsg > sendDelay ) { // prev and current are always slightly different, even when still
 
@@ -201,7 +242,7 @@ void ofApp::update() {
 
 
 
-	// update the robot's gizmo
+	// enable/disable the camera's input based on the gizmos
 	if ((robot.showGizmo && robot.gizmo.isInteracting()) || gizmo_lookAt.isInteracting()) {
 		cams[viewport_activeID]->disableMouseInput();
 	}
@@ -405,6 +446,7 @@ void ofApp::draw() {
 void ofApp::exit() {
 
 	panel.saveToFile("settings.xml");
+	robot.exit();
 	//for (auto &m : limbs) {
 	//	m.exit();
 	//}
@@ -426,6 +468,10 @@ void ofApp::drawViewports() {
 			ofNoFill();
 			ofDrawRectangle(*viewports[i]);
 			ofDrawBitmapString(viewport_labels[i], viewports[i]->x + 10, viewports[i]->y + 20);
+			string behaviorLabel = "Robot Behavior Mode: " + robot.behaviorNames[robot.behaviorMode];
+			ofSetColor(ofColor::white, 100);
+			ofDrawBitmapString(behaviorLabel, viewports[i]->x + 10, viewports[i]->y + 35);
+			
 			ofPopStyle();
 
 			// Highlight active viewport
@@ -449,6 +495,9 @@ void ofApp::drawViewports() {
 		ofNoFill();
 		ofDrawRectangle(*viewports[viewport_activeID]);
 		ofDrawBitmapString(viewport_labels[viewport_activeID], viewports[viewport_activeID]->x + 10, viewports[viewport_activeID]->y + 20);
+		string behaviorLabel = "Robot Behavior Mode: " + robot.behaviorNames[robot.behaviorMode];
+		ofSetColor(ofColor::white, 100);
+		ofDrawBitmapString(behaviorLabel, viewports[viewport_activeID]->x + 10, viewports[viewport_activeID]->y + 35);
 		ofPopStyle();
 
 	}
@@ -475,13 +524,16 @@ void ofApp::drawViewport(int i) {
 	robot.draw();
 	if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_TRACKER || robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_AGENT) {
 		gizmo_lookAt.draw(*cams[i]);
-		agent.draw();
+		
+		if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_AGENT)
+			agent.draw();
 
 	}
 	else if (robot.behaviorMode == Robot::BEHAVIOR::PHYSICS) {
+		
 		ofPushStyle();
 		world.drawDebug();
-		
+
 		ofFill();
 		ofSetColor(100);
 		ground.draw();
@@ -496,8 +548,19 @@ void ofApp::drawViewport(int i) {
 		box->draw();
 
 		fulcrum->draw();
+
+		ofSetColor(255, 0, 255);
+		for (int i = 0; i < anchors.size(); i++) {
+			anchors[i]->draw();
+		}
+		ofSetColor(220, 220, 220);
+		for (int i = 0; i < joints.size(); i++) {
+			joints[i]->draw();
+		}
 		
 		ofPopStyle();
+
+		gizmo_lookAt.draw(*cams[i]);
 	}
 
 	// draw only the trackers that are currently being tracked
@@ -878,7 +941,7 @@ void ofApp::setupPhysics() {
 	//ofAddListener(world.COLLISION_EVENT, this, &ofApp::onCollision);
 
 	// create a bounding area
-	ground.create(world.world, ofVec3f(0., 0., 5.5), 0., 3000.f, 3000.f, 1.f);
+	ground.create(world.world, ofVec3f(0., 0., 0), 0., 3000.f, 3000.f, 1.f);
 	ground.setProperties(.25, .95);
 	ground.add();
 
@@ -930,27 +993,64 @@ void ofApp::setupPhysics() {
 
 	// setup the fulcrum to balance the body
 	fulcrum = new ofxBulletCone();
-	
-	// reorient the cone so that Z is up
-	btTransform tr;
-	tr.setIdentity();
-	tr.setOrigin( btVector3(0, 0, 100));
+	// reorient the cone so that Z is up	
+	tr_fulcrum.setIdentity();
 	btQuaternion quat;
-	quat.setEuler(0, 90, 0);
-	tr.setRotation(quat);
-	fulcrum->create(world.world, tr, 1000, 50, 140);
-	//fulcrum->setActivationState(DISABLE_DEACTIVATION);
+	quat.setEuler(0, ofDegToRad(90), 0);
+	tr_fulcrum.setRotation(quat);
+	tr_fulcrum.setOrigin(btVector3(0, 0, 75));
+	fulcrum->create(world.world, tr_fulcrum, 10, 50, 140);
+	// make the fulcrum a static rigid body
+	fulcrum->getRigidBody()->setLinearFactor(btVector3(0, 0, 0));
+	fulcrum->getRigidBody()->setAngularFactor(btVector3(0, 0, 0));
+	fulcrum->getRigidBody()->setGravity(btVector3(0, 0, 0));
+	// add to physics world
 	fulcrum->add();
-	
-
 
 	// setup robot body
 	boxShape = ofBtGetBoxCollisionShape(240, 410, 100);
 	box = new ofxBulletBox();
 	box->init(boxShape);
-	box->create(world.world, ofVec3f(0, 0, 300), 1);
+	box->create(world.world, ofVec3f(0, 0, 140), 100);
 	box->setActivationState(DISABLE_DEACTIVATION);
+	box->setRestitution(1);
 	box->add();
+
+	// setup joints to attached body to ground
+	anchors.push_back(new ofxBulletSphere());
+	((ofxBulletSphere*)anchors[anchors.size() - 1])->create(world.world, ofVec3f(0, box->getHeight() / 2, box->getPosition().z), 10, 50);
+	anchors[0]->getRigidBody()->setLinearFactor(btVector3(0, 0, 0));
+	anchors[0]->getRigidBody()->setAngularFactor(btVector3(0, 0, 0));
+	anchors[0]->getRigidBody()->setGravity(btVector3(0, 0, 0));
+	
+	anchors[anchors.size() - 1]->add();
+
+
+	// made in same ordering as minitaur legs
+	joints.push_back(new ofxBulletJoint());
+	joints[joints.size() - 1]->create(world.world, box, ofVec3f(-box->getWidth() / 2, box->getHeight() / 2, 0));
+	joints[joints.size() - 1]->add();
+
+	joints.push_back(new ofxBulletJoint());
+	joints[joints.size() - 1]->create(world.world, box, ofVec3f(-box->getWidth() / 2, -box->getHeight() / 2, 0));
+	joints[joints.size() - 1]->add();
+
+	joints.push_back(new ofxBulletJoint());
+	joints[joints.size() - 1]->create(world.world, box, ofVec3f(box->getWidth() / 2, box->getHeight()/2, 0));
+	joints[joints.size() - 1]->add();
+
+	joints.push_back(new ofxBulletJoint());
+	joints[joints.size() - 1]->create(world.world, box, ofVec3f(box->getWidth() / 2, -box->getHeight() / 2, 0));
+	joints[joints.size() - 1]->add();
+
+	for (auto &joint : joints) {
+
+		// restrict motion in the XZ Plane
+		joint->getRigidBodyA()->setLinearFactor(btVector3(0, 1, 1));
+		joint->getRigidBodyB()->setLinearFactor(btVector3(0, 1, 1));
+		
+	}
+	
 }
 
 //--------------------------------------------------------------
@@ -959,6 +1059,16 @@ void ofApp::mousePickEvent(ofxBulletMousePickEvent &e) {
 	cams[viewport_activeID]->disableMouseInput();
 
 		cout << "touch!" << endl;
+}
+
+btVector3 ofApp::toBT(ofVec3f pos)
+{
+	return btVector3(pos.x, pos.y, pos.z);
+}
+
+btQuaternion ofApp::toBT(ofQuaternion orient)
+{
+	return btQuaternion(orient.x(), orient.y(), orient.z(), orient.w());
 }
 
 //--------------------------------------------------------------

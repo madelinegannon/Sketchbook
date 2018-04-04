@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void Robot::setup(){
 
-	pivot.setGlobalPosition(0, 0, 0);
+	pivot.setGlobalPosition(0, 0, 250);
 
 	body.setWidth(240);
 	body.setHeight(410);
@@ -32,6 +32,12 @@ void Robot::setup(){
 //--------------------------------------------------------------
 void Robot::update() {
 
+	//// TEMP: update timer to rotate the whole body
+	//// comment out below: pivot.setTransformMatrix(gizmo.getMatrix()); 
+	//float timer = float(ofGetElapsedTimeMillis());
+	//timer /= timerMax;
+	//pivot.tilt(sin(timer + .5));
+
 	// update geometry attached to gizmo		
 	pivot.setTransformMatrix(gizmo.getMatrix());
 
@@ -47,15 +53,28 @@ void Robot::update() {
 			//temp.rotate(90, temp.getZAxis());
 
 			body.setGlobalPosition(relOffset.getTranslation() + pivot.getGlobalPosition());
-			body.setOrientation(temp.getGlobalOrientation()); // still reorients based on the center of the body :-/
+			body.setOrientation(temp.getGlobalOrientation()); // still reorients based on the center of the body, not pivot :(
 		
+		}
+		else if (behaviorMode == POSTURE || behaviorMode == PHYSICS) {
+			body.setGlobalPosition(pivot.getGlobalPosition());
+			body.setOrientation(pivot.getGlobalOrientation());
 		}
 		
 	}
 
 
 	for (auto &limb : limbs) {
+		// pass GUI input to each limb
+		limb.splay = splay;
+		limb.minExtension = minExtension;
+		limb.maxExtension = maxExtension;
+		limb.showDebug = showDebug;
+		limb.showRadians = showRadians;
+		limb.showMeters = showMeters;
+		
 		limb.update();
+		//limb.motor.update(body.getZAxis());
 	}
 	
 	// converts from deg / mm to rad / m
@@ -74,8 +93,8 @@ void Robot::draw() {
 
 	ofPushStyle();
 	body.drawWireframe();
-	ofSetColor(ofColor::antiqueWhite, 50);
-	body.draw();
+	//ofSetColor(ofColor::antiqueWhite, 50);
+	//body.draw();
 	ofPopStyle();
 
 	for (auto &limb : limbs) {
@@ -91,7 +110,13 @@ void Robot::setupGUI() {
 	params.setName("Robot Params");
 	params.add(showGizmo.set("Show Gizmo", true));
 	params.add(lockPivot.set("Lock Pivot", true));
+	params.add(showDebug.set("Show Debug", true));
+	params.add(showRadians.set("Show Radians", false));
+	params.add(showMeters.set("Show Meters", false));
 	params.add(behaviorMode.set("Behavior Mode", 6, 0, 6));
+	params.add(minExtension.set("Min Extension", 150, 140, 300));
+	params.add(maxExtension.set("Max Extension", 300, 150, 330));
+	params.add(splay.set("Foot Splay", 10, 0, 500));
 	params.add(PRZ.set("Pitch, Roll, Height", ofVec3f(0, 0, 0), ofVec3f(-.5, -.5, .14), ofVec3f(.5, .5, .25)));
 
 	params.add(lockGains.set("Lock Gains", false));
@@ -209,10 +234,6 @@ void Robot::reset() {
 void Robot::exit() {
 	for (auto &limb : limbs)
 		limb.exit();
-
-	//body.clearParent();
-	pivot.clearParent();
-	clearParent();
 }
 
 //--------------------------------------------------------------

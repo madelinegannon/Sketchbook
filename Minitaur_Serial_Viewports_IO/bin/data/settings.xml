@@ -13,9 +13,9 @@
 		<Tracker_2>0</Tracker_2>
 	</Tracking_Options>
 	<Robot_Params>
-		<Show_Gizmo>1</Show_Gizmo>
+		<Show_Gizmo>0</Show_Gizmo>
 		<Lock_Pivot>1</Lock_Pivot>
-		<Pitch__Roll__Height>0.209127, 0, 0.315546</Pitch__Roll__Height>
+		<Pitch__Roll__Height>0.0226572, 0.103398, 0.193071</Pitch__Roll__Height>
 		<Limb_0>
 			<angle_pk_0>0.8</angle_pk_0>
 			<angle_pd_0>0.03</angle_pd_0>
@@ -43,6 +43,7 @@
 	<Lock_Gains>0</Lock_Gains>
 		<Reset_Gains>0</Reset_Gains>
 		<Send_Gains>0</Send_Gains>
+	<Behavior_Mode>6</Behavior_Mode>
 	</Robot_Params>
 <COM_Parameters/>
 <Agent_Parameters>

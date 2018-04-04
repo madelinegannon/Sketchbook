@@ -26,9 +26,14 @@ class Robot : public ofNode {
 
 		vector<Limb> limbs;
 
+		//void rotateLimb(int id);
+		//void rotateLimb();
+		float timerMax = 1000.;
+
 		ofxGizmo gizmo;
 
 		static enum BEHAVIOR {NONE, POSTURE, FOLLOW_TRACKER, FOLLOW_AGENT, LOOKAT_TRACKER, LOOKAT_AGENT, PHYSICS};
+		string behaviorNames[7] = { "NONE", "POSTURE", "FOLLOW_TRACKER", "FOLLOW_AGENT", "LOOKAT_TRACKER", "LOOKAT_AGENT", "PHYSICS" };
 		ofParameter<int> behaviorMode = PHYSICS;
 
 		void setLookAtPt(ofVec3f lookAtPt);
@@ -38,6 +43,12 @@ class Robot : public ofNode {
 		ofParameterGroup params;
 		ofParameter<bool> showGizmo;
 		ofParameter<bool> lockPivot;
+		ofParameter<bool> showDebug;
+		ofParameter<bool> showRadians;
+		ofParameter<bool> showMeters;
+		ofParameter<float>minExtension;
+		ofParameter<float>maxExtension;
+		ofParameter<float>splay;
 		ofParameter<ofVec3f> PRZ; // pitch, roll, height
 		ofParameter<bool> lockGains; // make all gains the same
 		ofParameter<bool> resetGains; // make all gains the same

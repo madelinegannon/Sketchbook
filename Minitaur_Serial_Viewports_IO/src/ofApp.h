@@ -96,6 +96,10 @@ class ofApp : public ofBaseApp {
 		ofxBulletWorldRigid	world;
 		ofxBulletBox ground;
 		ofxBulletCone* fulcrum;
+		btTransform tr_fulcrum;
+		vector<ofxBulletRigidBody*> anchors;
+		vector<ofxBulletJoint*>	joints;
+		float jointLength = .3;
 		vector <ofxBulletBox*> bounds;
 		ofxBulletCustomShape* boundsShape;
 		float boundsWidth;
@@ -108,6 +112,9 @@ class ofApp : public ofBaseApp {
 		int	mousePickIndex;
 		ofVec3f	mousePickPos;
 
+		// helpers
+		btVector3 toBT(ofVec3f pos);
+		btQuaternion toBT(ofQuaternion orient);
 		/////////////////////////////////////////
 		
 
