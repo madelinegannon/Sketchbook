@@ -65,11 +65,14 @@ class Limb : public ofNode {
 			color = start.getLerped(end, id / 4.0);
 
 			// setup GUI
-			params.setName("Limb " + ofToString(id));
-			params.add(gain_angle_pk.set("angle_pk_" + ofToString(id),.8f, 0., 2.));
-			params.add(gain_angle_pd.set("angle_pd_" + ofToString(id), .03f, 0., .1));
-			params.add(gain_ext_pk.set("ext_pk_" + ofToString(id), 120, 100., 200.));
-			params.add(gain_ext_pd.set("ext_pd_" + ofToString(id), 4, 0., 10));
+			if (id == 0) { // turn off the other limb gain settings for now
+				params.setName("Limb " + ofToString(id));
+				params.add(gain_angle_pk.set("angle_pk_" + ofToString(id), .8f, 0., 2.));
+				params.add(gain_angle_pd.set("angle_pd_" + ofToString(id), .03f, 0., .1));
+				params.add(gain_ext_pk.set("ext_pk_" + ofToString(id), 120, 100., 200.));
+				params.add(gain_ext_pd.set("ext_pd_" + ofToString(id), 4, 0., 10));
+			}
+
 		};
 		
 		void update() {
@@ -179,13 +182,6 @@ class Limb : public ofNode {
 		};
 
 		float getAngle() {
-			//angle_prev = angle;
-
-			//ofVec3f p1 = (shoulder.getGlobalPosition() - toe.getGlobalPosition()).normalize(); // shoulder to toe vector
-			//ofVec3f ground = touchPt;
-			//ofVec3f p2 = ofVec3f(0, 0, -1);			// shoulder to ground vector
-
-			//angle = p1.angle(p2);
 			return angle;
 		};
 

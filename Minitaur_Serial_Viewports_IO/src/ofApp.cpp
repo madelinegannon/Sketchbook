@@ -62,6 +62,7 @@ void ofApp::update() {
 	//	checkForMessages_Vive();
 	//}
 
+
 	// update viewports
 	if (viewport_showAll) {
 		robot.gizmo.disableMouseInput();
@@ -86,8 +87,7 @@ void ofApp::update() {
 		if (robot.gizmo.getDisplayScale() != 2) {
 			robot.gizmo.setDisplayScale(2);
 		}
-
-		
+	
 		// update the robot (based on gizmo)
 		robot.update();
 
@@ -134,110 +134,21 @@ void ofApp::update() {
 	
 	if (robot.behaviorMode == Robot::BEHAVIOR::LOOKAT_TRACKER) {
 
+		// when we are using the vive tracker
+		if (trackers.size() > 0 && trackers[3].isConnected) {
+
+			// update the gizmo_lookAt to be the tracker[3]'s transform matirx
+
+		}
+
 		// look at secondary gizmo for now
 		robot.setLookAtPt(gizmo_lookAt.getMatrix().getTranslation());
 		robot.update();
-
-		// when we are using the vive tracker
-		if (trackers.size() > 0 && trackers[3].isConnected &&
-			ofGetElapsedTimeMillis() - tLastMsg > sendDelay ) { // prev and current are always slightly different, even when still
-
-			tLastMsg = ofGetElapsedTimeMillis();
-
-			float pitch, roll, height;
-			if (lookAtTracker) {
-
-				//// send yaw, pitch, roll of body
-				//pitch = ofDegToRad(body.getHeading());
-				//pitch = ofMap(pitch, ofDegToRad(-45), 0, -.65, 0);
-
-				//roll = ofDegToRad(trackers[3].getHeading());
-				//roll = ofMap(roll, -PI, PI, .5, -.5);
-
-				//height = body.getGlobalPosition().z / 1000.;// [3].getGlobalPosition().z / 1000.;
-
-				//pitch = ofClamp(pitch, -.65, 0);
-				//roll = ofClamp(roll, -.5, .5);
-				//height = ofClamp(height, .14, .25);
-
-			}
-
-			else {
-
-				//// send yaw, pitch, roll of tracker
-				//pitch = ofDegToRad(trackers[3].getPitch());
-				//pitch = ofMap(pitch, -PI, PI, .5, -.5);
-
-				//roll = ofDegToRad(trackers[3].getHeading());
-				//roll = ofMap(roll, -PI, PI, -.5, .5);
-
-				//height = body.getGlobalPosition().z / 1000.;// [3].getGlobalPosition().z / 1000.;
-
-				//pitch = ofClamp(pitch, -.5, .5);
-				//roll = ofClamp(roll, -.5, .5);
-				//height = ofClamp(height, .14, .25);
-
-			}
-
-			//stringstream ss;
-			//ss << "body/";
-			//ss << ofToString(pitch) << "," <<
-			//	ofToString(roll) << "," <<
-			//	ofToString(height) << endl;
-			////cout << "{pitch,roll,height}: { " << ss.str() << " }" << endl;
-			//sendMessage(ss.str());
-
-			//// store the previous orientation of the gizmo ... <-- not used anymore?
-			//prevGizmoRotation.set(gizmo.getMatrix().getRotate());
-
-		}
 	}
 
-	else if (robot.behaviorMode == Robot::BEHAVIOR::POSTURE) {
-
-		//		if ((gizmo.mode == ofxGizmo::OFX_GIZMO_ROTATE || gizmo.mode == ofxGizmo::OFX_GIZMO_MOVE) 
-		//				&& ofGetElapsedTimeMillis() - tLastMsg > sendDelay) {
-		//			tLastMsg = ofGetElapsedTimeMillis();
-		//			
-		//			// send yaw, pitch, roll
-		//			float pitch = ofDegToRad(body.getPitch());
-		//			float roll = ofDegToRad(body.getHeading());
-		//			float height = body.getGlobalPosition().z / 1000.;
-		//			pitch = ofClamp(pitch, -.5, .5);
-		//			roll = ofClamp(roll, -.5, .5);
-		//			height = ofClamp(height, .14, .25);
-
-		//			stringstream ss;
-		//			ss << "body/";
-		//			ss << ofToString(pitch) << "," <<
-		//				ofToString(roll) << "," <<
-		//				ofToString(height) << endl;
-		//			//cout << "{pitch,roll,height}: { " << ss.str() << " }" << endl;
-		//			//sendMessage(ss.str());
-
-		//			string test = ss.str();
-
-		//			cout << "addr: " << test.substr(0, test.find('/')) << endl;
-		//			cout << "data: " << test.substr(test.find('/') + 1, test.length());
-
-
-		//			// store the previous orientation of the gizmo ... <-- not used anymore?
-		//			prevGizmoRotation.set(gizmo.getMatrix().getRotate());
-		//		}
-
-		//	}
-		//	else if (!cams[viewport_activeID]->getMouseInputEnabled())
-		//		cams[viewport_activeID]->enableMouseInput();
-		//}
-
-		//if (lookAtTracker && trackers.size() > 0 && trackers[3].isConnected) {
-
-		//}
-		//else {
-
-		//}
-
-
+	// if we are streaming data to the robot, send the message
+	if (streamPRZ || streamAngleExt || sendGains || sendFlag) {
+		sendMessage("");
 	}
 
 
@@ -267,12 +178,7 @@ void ofApp::checkForMessages() {
 		incomingMsg = ss.str();
 
 		if (incomingMsg != "") {
-			if (incomingMsg.at(0) == 'I') {
-				cout << incomingMsg << endl;
-			}
-			else {
-				cout << "	Incoming Message from Minitaur: [ " << incomingMsg << " ]" << endl << endl;
-			}
+			cout << "	Incoming Message from Minitaur: [ " << incomingMsg << " ]" << endl << endl;
 		}
 
 	}
@@ -414,15 +320,54 @@ void ofApp::checkForMessages_Vive() {
 // --------------------------------------------------------------
 void ofApp::sendMessage(string msg) {
 
-	if (serial.isInitialized()){// && serial.available()) {
+	stringstream ss;
+
+	if (streamPRZ) {
+		ss << "PRZ/";
+		ss << ofToString(robot.PRZ.get().x) << "," <<
+			ofToString(robot.PRZ.get().y) << "," <<
+			ofToString(robot.PRZ.get().z) << endl;
+	}
+	else if (streamAngleExt) {
+		ss << "AE/";
+		ss << ofToString(robot.limbs[0].angle) << "," <<
+			ofToString(robot.limbs[0].extension) << ";" <<
+			ofToString(robot.limbs[1].angle) << "," <<
+			ofToString(robot.limbs[1].extension) << ";" <<
+			ofToString(robot.limbs[2].angle) << "," <<
+			ofToString(robot.limbs[2].extension) << ";" <<
+			ofToString(robot.limbs[3].angle) << "," <<
+			ofToString(robot.limbs[3].extension) << endl;		
+	}
+	// interrupt streaming to send gains or flags
+	if (sendGains) {
+		// use the gains set to the first limb
+		ss << "gain/";
+		ss << ofToString(robot.limbs[0].gain_angle_pk) << "," <<
+			ofToString(robot.limbs[0].gain_angle_pd) << "," <<
+			ofToString(robot.limbs[0].gain_ext_pk) << "," <<
+			ofToString(robot.limbs[0].gain_ext_pd) << endl;
+	}
+	if (sendFlag) {
+		ss << "flag/";
+		ss << msg << endl;
+		//sendFlag = false;
+	}
+
+	// send the message over serial if we are intialized and enough time has passed
+	if (serial.isInitialized() && ofGetElapsedTimeMillis() - tLastMsg > sendDelay){// && serial.available()) {
+
+		string message = ss.str();
 	
-		unsigned char* chars = (unsigned char*)msg.c_str();
-		serial.writeBytes(chars, msg.length());
+		unsigned char* chars = (unsigned char*)message.c_str();
+		serial.writeBytes(chars, message.length());
 	
-		//cout << "Sending Message [ " << msg << " ] to Minitaur" << endl;
+		//cout << "Sending Message [ " << message << " ] to Minitaur" << endl;
+		
+		tLastMsg = ofGetElapsedTimeMillis();
 	}
 	else {
-		cout << "Serial NOT Initialized" << endl;
+		//cout << "Serial NOT Initialized" << endl;
 	}
 
 }
@@ -440,6 +385,7 @@ void ofApp::draw() {
 		panel_agent.draw();
 	}
 
+	
 }
 
 // -------------------------------------------------------------------
@@ -450,6 +396,8 @@ void ofApp::exit() {
 	//for (auto &m : limbs) {
 	//	m.exit();
 	//}
+
+
 }
 
 
@@ -585,7 +533,7 @@ void ofApp::keyPressed(int key){
 
 	// send key inputs to Minitaur over serial
 	if (key == OF_KEY_UP) {
-		//sendMessage("pitch/+");
+
 	}
 	else if (key == OF_KEY_DOWN) {
 		//sendMessage("pitch/-");
@@ -595,6 +543,9 @@ void ofApp::keyPressed(int key){
 	}
 	else if (key == 'g') {
 		showGUI = !showGUI;
+	}
+	else if (key == 'd') {
+		robot.showDebug = !robot.showDebug;
 	}
 	
 
@@ -755,6 +706,10 @@ void ofApp::setupGUI() {
 	params_com.setName("COM Parameters");
 	params_com.add(msg_status.set("COM PORT", COM_PORT));
 	params_com.add(msg_listening.set("baud", ofToString(baud)));
+	params_com.add(streamPRZ.set("Stream RPZ", false));
+	params_com.add(streamAngleExt.set("Stream Angle/Ext", false));
+	//params_com.add(sendGains.set("Send Gains", false));
+	//params_com.add(sendFlag.set("Send Flag", false));
 
 	params_osc.setName("OSC Parameters");
 	params_osc.add(msg_status_osc.set("IP Addr", "Not Connected..."));
@@ -772,6 +727,8 @@ void ofApp::setupGUI() {
 	//.add(gizmo_isVisible.set("Show Gizmo", true));
 
 	panel.setup(params_com);
+	panel.add(sendGains.setup("Send Gains"));
+	panel.add(sendFlag.setup("Send Flag"));
 	panel.add(params_osc);
 	panel.add(reconnect.setup("Reconnect"));
 	panel.add(params_tracking);
@@ -931,7 +888,8 @@ void ofApp::setupPhysics() {
 	world.setup();
 	world.enableGrabbing();
 	world.setCamera(cams[3]);
-	world.setGravity(ofVec3f(0, 0, -250));
+	world.setGravity(ofVec3f(0, 0, -1));
+	//world.world->stepSimulation(btScalar(1.) / btScalar(60.), btScalar(1.) / btScalar(60.)); // don't really know what this is doing
 
 	// enable mouse pick events 
 	ofAddListener(world.MOUSE_PICK_EVENT, this, &ofApp::mousePickEvent);

@@ -54,4 +54,8 @@
 		<gravity>0</gravity>
 		<gravityVec>0, 0, -1</gravityVec>
 	</Agent_Parameters>
+<Stream_RPZ>0</Stream_RPZ>
+	<Stream_Angle_Ext>0</Stream_Angle_Ext>
+	<Send_Gain>0</Send_Gain>
+	<Send_Flag>0</Send_Flag>
 </COM_Parameters>

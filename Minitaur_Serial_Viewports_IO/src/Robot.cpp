@@ -121,12 +121,12 @@ void Robot::setupGUI() {
 
 	params.add(lockGains.set("Lock Gains", false));
 	params.add(resetGains.set("Reset Gains", false));
-	params.add(sendGains.set("Send Gains", false));
+	//params.add(sendGains.set("Send Gains", false));
 
 	lockPivot.addListener(this, &Robot::lockPivotListener);
 	lockGains.addListener(this, &Robot::lockGainsListener);
 	resetGains.addListener(this, &Robot::resetGainsListener);
-	sendGains.addListener(this, &Robot::sendGainsListener);
+	//sendGains.addListener(this, &Robot::sendGainsListener);
 
 	for (int i = 0; i < 4; i++) {
 		params.add(limbs[i].params);
@@ -210,13 +210,13 @@ void Robot::resetGainsListener(bool &flag) {
 }
 
 //--------------------------------------------------------------
-void Robot::sendGainsListener(bool &flag) {
-
-	// send the gains
-
-	// reset the value
-	sendGains.set(false);
-}
+//void Robot::sendGainsListener(bool &flag) {
+//
+//	// send the gains
+//
+//	// reset the value
+//	sendGains.set(false);
+//}
 
 //--------------------------------------------------------------
 void Robot::reset() {

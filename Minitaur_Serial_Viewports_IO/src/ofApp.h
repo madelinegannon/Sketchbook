@@ -10,6 +10,7 @@
 #include "Robot.h"
 #include "Tracker.h"
 #include "Agent.h"
+//#include "SerialThread.h"
 
 
 // listen on port 9001
@@ -44,6 +45,13 @@ class ofApp : public ofBaseApp {
 		// COMS
 
 		// communicating with Minitaur over Serial
+		
+		// ... not working yet :(
+		//SerialThread serialThread;
+		//string *msgOut;
+		//string sendMsg = "";
+		//string *msgIn;
+
 		ofSerial serial;
 		string COM_PORT = "COM9";
 		int baud = 115200;
@@ -53,6 +61,8 @@ class ofApp : public ofBaseApp {
 		string incomingMsg;
 		float sendDelay = 0;
 		float tLastMsg = 0;
+		
+
 
 		// communicating with Vive over OSC
 		ofxOscSender sender;
@@ -139,6 +149,11 @@ class ofApp : public ofBaseApp {
 		ofParameterGroup params_com;
 		ofParameter<string> msg_status;
 		ofParameter<string> msg_listening;
+		ofParameter<bool> streamPRZ; 		// send the roll, pitch, height of the robot		
+		ofParameter<bool> streamAngleExt;	// send the angles & extensions of each limb			
+		ofxButton sendGains;	// send the PD gains for the limbs
+		ofxButton sendFlag;		// send a flag or state to the robot
+		
 
 		ofParameterGroup params_osc;
 		ofParameter<string> msg_status_osc;
