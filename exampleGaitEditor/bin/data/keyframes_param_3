@@ -1,0 +1,26 @@
+<keyframes>
+    <key>
+        <param_03_a>0.000000000</param_03_a>
+        <param_03_b>0.000000000</param_03_b>
+        <time>00:00:13:681</time>
+        <value>0.574999988</value>
+    </key>
+    <key>
+        <param_03_a>0.000000000</param_03_a>
+        <param_03_b>0.000000000</param_03_b>
+        <time>00:00:14:296</time>
+        <value>0.475000024</value>
+    </key>
+    <key>
+        <param_03_a>0.000000000</param_03_a>
+        <param_03_b>0.000000000</param_03_b>
+        <time>00:00:15:644</time>
+        <value>0.500000000</value>
+    </key>
+    <key>
+        <param_03_a>0.000000000</param_03_a>
+        <param_03_b>0.000000000</param_03_b>
+        <time>00:00:16:669</time>
+        <value>0.475000024</value>
+    </key>
+</keyframes>
