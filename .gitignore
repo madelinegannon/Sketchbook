@@ -47,6 +47,11 @@ Minitaur_Serial_Viewports_IO/bin/*
 nodeOrient/bin/*
 !nodeOrient/bin/data
 
+UDPServer/bin/*
+!UDPServer/bin/data
+UDPClient/bin/*
+!UDPClient/bin/data
+
 *.db-shm
 *.db-wal
 *.db-shm
