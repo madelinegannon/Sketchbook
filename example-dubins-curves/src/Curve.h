@@ -78,7 +78,7 @@ class Curve : public ofPath{
     
         void setup_path();
     
-        ofColor start_bold = ofColor(ofColor::deepSkyBlue);
-        ofColor goal_bold = ofColor(ofColor::mediumVioletRed);
-        ofColor color_minor = ofColor(255, 120);
+        ofColor start_bold = ofColor(ofColor::deepSkyBlue,80);
+        ofColor goal_bold = ofColor(ofColor::mediumVioletRed,80);
+        ofColor color_minor = ofColor(255, 60);
 };

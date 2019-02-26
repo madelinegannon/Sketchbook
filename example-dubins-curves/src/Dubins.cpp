@@ -108,7 +108,7 @@ void Dubins::draw(bool _show_waypoints){
         // show the curve picker
         if (picker_curve){
             
-            if (curves.size() > 0 && picker_curve_index < curves.size()){
+            if (curves.size() > 0 && picker_curve_index < path.getCommands().size()){
                 ofPushStyle();
                 ofSetColor(0, 255, 255);
                 ofSetLineWidth(5);
@@ -471,7 +471,45 @@ void Dubins::keyPressed(int key){
             }
             break;
         case 's':
+        case 'S':
             _save_pdf = true;
+            break;
+        case 'p':
+        case 'P':
+            picker_curve.set(!picker_curve);
+            break;
+        case OF_KEY_UP:
+            picker_curve_index.set((picker_curve_index+1)%path.getOutline().size());
+            break;
+        case OF_KEY_DOWN:{
+            if (path.getOutline().size() > 0){
+                if (picker_curve_index == 0)
+                    picker_curve_index = path.getOutline().size()-1;
+                else
+                    picker_curve_index--;
+            }
+            break;
+        }
+        case OF_KEY_RIGHT:{
+            if (picker_curve_type == 6)
+                picker_curve_type = 1;
+            else
+               picker_curve_type+=1;
+//            cout << "RIGHT: "<< type_num << endl;
+            int type_num = picker_curve_type;
+            listener_picker_curve_type(type_num);
+            break;
+        }
+        case OF_KEY_LEFT:{
+            if (picker_curve_type == 1)
+                picker_curve_type = 6;
+            else
+                picker_curve_type -= 1;
+//            cout << "LEFT: "<< type_num << endl;
+            int type_num = picker_curve_type;
+            listener_picker_curve_type(type_num);
+            break;
+        }
         default:
             break;
     }
