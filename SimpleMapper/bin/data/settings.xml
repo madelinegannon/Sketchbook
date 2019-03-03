@@ -1,0 +1,10 @@
+<Simple_Mapper>
+	<Show_Gui>1</Show_Gui>
+	<Project_Mode>0</Project_Mode>
+	<Calibrate_Mode>1</Calibrate_Mode>
+	<Quad_P1>212, 534</Quad_P1>
+	<Quad_P2>812, 534</Quad_P2>
+	<Quad_P3>812, 234</Quad_P3>
+	<Quad_P4>212, 234</Quad_P4>
+<Simple_Mapper/>
+</Simple_Mapper>
