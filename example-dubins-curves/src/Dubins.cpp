@@ -102,26 +102,58 @@ void Dubins::draw(bool _show_waypoints){
         
         if (_save_pdf){
             ofEndSaveScreenAsPDF();
-            _save_pdf = false;
+            _save_pdf.set(false);
         }
         
         // show the curve picker
         if (picker_curve){
-            
-            if (curves.size() > 0 && picker_curve_index < path.getCommands().size()){
-                ofPushStyle();
-                ofSetColor(0, 255, 255);
-                ofSetLineWidth(5);
-                path.getOutline()[picker_curve_index].draw();
-                ofPopStyle();
-            }
-
+            highlight_segment();
         }
     }
     
     // show the directionality of the path
     draw_ticker();
 
+}
+
+//--------------------------------------------------------------
+void Dubins::highlight_segment(){
+    if (curves.size() > 0 && picker_curve_index < path.getCommands().size()){
+       
+        ofPushStyle();
+        ofNoFill();
+        ofSetColor(ofColor::chartreuse, 100);
+        ofSetLineWidth(10);
+        ofPolyline outlines = path.getOutline()[picker_curve_index];
+        ofBeginShape();
+        for(int i=0; i<outlines.getVertices().size(); i++){
+            if (i != 0){
+                ofVertex(outlines.getVertices()[i].x, outlines.getVertices()[i].y);
+            }
+        }
+        ofEndShape();
+        ofPopStyle();
+        
+    }
+    
+    //    // manually draw the path
+    //    // ... (ofPath::draw() wasn't rendering correctly)
+    //    ofPushStyle();
+    //    ofNoFill();
+    ////    ofColor col;
+    ////    col.set(0,255,255., 150);
+    ////    ofSetColor(col);
+    //    ofSetLineWidth(7);
+    //    const vector<ofPolyline> & outlines = this->getOutline();
+    //    ofBeginShape();
+    //    for(int i=0; i<outlines[0].getVertices().size(); i++){
+    //        if (i != 0){
+    //            ofVertex(outlines[0].getVertices()[i].x, outlines[0].getVertices()[i].y);
+    //        }
+    //    }
+    //    ofEndShape();
+    //    ofPopStyle();
+    //
 }
 
 //--------------------------------------------------------------
@@ -337,6 +369,7 @@ void Dubins::setup_gui(){
     params.setName("Dubins_Params");
     params.add(_show_debug.set("Show_Debug", true));
     params.add(_use_longest.set("Use_Longest_Segments", false));
+    params.add(_save_pdf.set("Save_To_PDF", false));
     params.add(radius.set("Turning_Radius", 50,10,100));
     params.add(speed.set("Speed", 1,0,5));
     
@@ -346,11 +379,15 @@ void Dubins::setup_gui(){
     params_picker.add(picker_curve_type.set("Curve_Type", 1,1,6));
     params_picker.add(picker_curve_type_name.set("\tCurve::Type::"));
     params_picker.add(picker_curve_radius.set("Curve_Radius", 50,10,150));
+    params_picker.add(picker_curve_radius_start.set("Curve_Radius_Start", 50,10,150));
+    params_picker.add(picker_curve_radius_goal.set("Curve_Radius_Goal", 50,10,150));
     
     params.add(params_picker);
     
     picker_curve_type.addListener(this, &Dubins::listener_picker_curve_type);
     picker_curve_radius.addListener(this, &Dubins::listener_picker_curve_radius);
+    picker_curve_radius_start.addListener(this, &Dubins::listener_picker_curve_radius_start);
+    picker_curve_radius_goal.addListener(this, &Dubins::listener_picker_curve_radius_goal);
 }
 
 //--------------------------------------------------------------
@@ -404,6 +441,42 @@ void Dubins::listener_picker_curve_radius(double &val){
             
             // update the stored curves
             curves[picker_curve_index].set_radius(val);
+            curves[picker_curve_index].set_radius_start(picker_curve_radius_start);
+            curves[picker_curve_index].set_radius_goal(picker_curve_radius_goal);
+            curves[picker_curve_index].set(waypoints[picker_curve_index], waypoints[picker_curve_index+1],  curves[picker_curve_index].type);
+            curves[picker_curve_index].update();
+            
+            regenerate_path();
+            
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void Dubins::listener_picker_curve_radius_start(double &val){
+    
+    if (picker_curve){
+        if (curves.size() > 0 && picker_curve_index < curves.size()){
+            
+            // update the stored curves
+            curves[picker_curve_index].set_radius_start(picker_curve_radius_start);
+            curves[picker_curve_index].set(waypoints[picker_curve_index], waypoints[picker_curve_index+1],  curves[picker_curve_index].type);
+            curves[picker_curve_index].update();
+            
+            regenerate_path();
+            
+        }
+    }
+}
+
+//--------------------------------------------------------------
+void Dubins::listener_picker_curve_radius_goal(double &val){
+    
+    if (picker_curve){
+        if (curves.size() > 0 && picker_curve_index < curves.size()){
+            
+            // update the stored curves
+            curves[picker_curve_index].set_radius_goal(picker_curve_radius_goal);
             curves[picker_curve_index].set(waypoints[picker_curve_index], waypoints[picker_curve_index+1],  curves[picker_curve_index].type);
             curves[picker_curve_index].update();
             
@@ -472,7 +545,7 @@ void Dubins::keyPressed(int key){
             break;
         case 's':
         case 'S':
-            _save_pdf = true;
+            _save_pdf.set(true);
             break;
         case 'p':
         case 'P':

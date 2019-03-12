@@ -104,8 +104,10 @@ void Curve::generate_CSC(Circle* start_circle, Circle* goal_circle){
         orientation_angle = x_axis.angle(ofVec3f(1,0,0));
         
         // get the rotation and length of the  arc
-        arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius, arc_1_left));
-        curve_length += get_arc_length(centroid, arc_start, arc_end, radius, arc_1_left);
+//        arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius, arc_1_left));
+//        curve_length += get_arc_length(centroid, arc_start, arc_end, radius, arc_1_left);
+        arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius_start, arc_1_left));
+        curve_length += get_arc_length(centroid, arc_start, arc_end, radius_start, arc_1_left);
         
         // set the start and end angles for the arc
         switch (type) {
@@ -124,7 +126,7 @@ void Curve::generate_CSC(Circle* start_circle, Circle* goal_circle){
         }
         
         // add the arc to the path
-        this->arc(centroid, radius, radius, angle_begin, angle_end, arc_1_left);
+        this->arc(centroid, radius_start, radius_start, angle_begin, angle_end, arc_1_left);
         
         
         // add the straight-away (second arc)
@@ -140,8 +142,8 @@ void Curve::generate_CSC(Circle* start_circle, Circle* goal_circle){
         orientation_angle = x_axis.angle(ofVec3f(1,0,0));
         
         // get the rotation and length of the  arc
-        arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius, arc_3_left));
-        curve_length += get_arc_length(centroid, arc_start, arc_end, radius, arc_3_left);
+        arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius_goal, arc_3_left));
+        curve_length += get_arc_length(centroid, arc_start, arc_end, radius_goal, arc_3_left);
         
         switch (type) {
             case Type::RSR:
@@ -163,7 +165,7 @@ void Curve::generate_CSC(Circle* start_circle, Circle* goal_circle){
 //        cout << "angle_begin: " << ofToString(angle_begin) << "" << endl;
 //        cout << "angle_end: " << ofToString(angle_end) << "" << endl <<endl;
         
-        this->arc(centroid, radius, radius, angle_begin, angle_end, arc_3_left);
+        this->arc(centroid, radius_goal, radius_goal, angle_begin, angle_end, arc_3_left);
         
     }
     
@@ -356,31 +358,31 @@ void Curve::update_tangent_circles(ofNode _start, ofNode _goal){
     if (theta > PI)
         theta -= 2.0*PI;
     
-    start_circle_L.pos = ofVec3f(_start.getGlobalPosition().x + radius*cos(theta), _start.getGlobalPosition().y + radius*sin(theta));
-    start_circle_L.radius = radius;
+    start_circle_L.pos = ofVec3f(_start.getGlobalPosition().x + radius_start*cos(theta), _start.getGlobalPosition().y + radius_start*sin(theta));
+    start_circle_L.radius = radius_start;
     
     theta = ofDegToRad(_start.getXAxis().angle(ofVec3f(1,0,0)));
     theta -= PI/2.0;
     if (theta < -PI)
         theta += 2.0*PI;
-    start_circle_R.pos = ofVec3f(_start.getGlobalPosition().x + radius*cos(theta), _start.getGlobalPosition().y + radius*sin(theta));
-    start_circle_R.radius = radius;
+    start_circle_R.pos = ofVec3f(_start.getGlobalPosition().x + radius_start*cos(theta), _start.getGlobalPosition().y + radius_start*sin(theta));
+    start_circle_R.radius = radius_start;
     
     theta = ofDegToRad(_goal.getXAxis().angle(ofVec3f(1,0,0)));
     theta += PI/2.0;
     if (theta > PI)
         theta -= 2.0*PI;
     
-    goal_circle_L.pos = ofVec3f(_goal.getGlobalPosition().x + radius*cos(theta), _goal.getGlobalPosition().y + radius*sin(theta));
-    goal_circle_L.radius = radius;
+    goal_circle_L.pos = ofVec3f(_goal.getGlobalPosition().x + radius_goal*cos(theta), _goal.getGlobalPosition().y + radius_goal*sin(theta));
+    goal_circle_L.radius = radius_goal;
     
     theta = ofDegToRad(_goal.getXAxis().angle(ofVec3f(1,0,0)));
     theta -= PI/2.0;
     if (theta < -PI)
         theta += 2.0*PI;
     
-    goal_circle_R.pos = ofVec3f(_goal.getGlobalPosition().x + radius*cos(theta), _goal.getGlobalPosition().y + radius*sin(theta));
-    goal_circle_R.radius = radius;
+    goal_circle_R.pos = ofVec3f(_goal.getGlobalPosition().x + radius_goal*cos(theta), _goal.getGlobalPosition().y + radius_goal*sin(theta));
+    goal_circle_R.radius = radius_goal;
 
 }
 

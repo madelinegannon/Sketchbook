@@ -36,7 +36,8 @@ void ofApp::draw(){
     
     dubins_path.draw();
     
-    panel.draw();
+    if (show_gui)
+        panel.draw();
 }
 
 
@@ -45,6 +46,12 @@ void ofApp::keyPressed(int key){
     switch (key) {
         case 'c':
             dubins_path.clear();
+            break;
+        case 'g':
+            show_gui = !show_gui;
+            break;
+        case 'f':
+            ofToggleFullscreen();
             break;
         case 'd':
             show_debug = !show_debug;

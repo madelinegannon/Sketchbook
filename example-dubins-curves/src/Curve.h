@@ -31,6 +31,8 @@ class Curve : public ofPath{
     
         vector<Circle> get_tangent_circles();
         void set_radius(double _radius) { radius = _radius; }
+        void set_radius_start(double _radius) { radius_start = _radius; }
+        void set_radius_goal(double _radius) { radius_goal = _radius; }
         double get_length(){ return length; }
     
         enum Type{
@@ -51,6 +53,8 @@ class Curve : public ofPath{
     private:
         ofNode start, goal;
         double radius = 50;
+        double radius_start = 50;
+        double radius_goal = 50;
         double length = 0;
     
         pair<ofVec3f,ofVec3f> outer_tangents;
@@ -74,7 +78,7 @@ class Curve : public ofPath{
         bool show_debug = true;
         void draw_CCC();
         void draw_CSC();
-        void draw_tangent_circles();
+    void draw_tangent_circles();
     
         void setup_path();
     

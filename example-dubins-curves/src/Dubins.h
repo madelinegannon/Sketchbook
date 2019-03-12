@@ -66,6 +66,7 @@ class Dubins {
         int resample_spacing;
     
         void draw_waypoints();
+        void highlight_segment();
         void draw_ticker();
         int ticker_index = 0;
         ofNode ticker_node;
@@ -77,6 +78,7 @@ class Dubins {
         ofParameterGroup params;
         ofParameter<bool> _use_longest;
         ofParameter<bool> _show_debug;
+        ofParameter<bool> _save_pdf;
         ofParameter<double> radius;
         ofParameter<float> speed;
     
@@ -87,10 +89,14 @@ class Dubins {
         ofParameter<int> picker_curve_type;
         ofParameter<string> picker_curve_type_name;
         ofParameter<double> picker_curve_radius;
+        ofParameter<double> picker_curve_radius_start;
+        ofParameter<double> picker_curve_radius_goal;
+        ofParameter<double> picker_curve_start;
+        ofParameter<double> picker_curve_goal;
     
         void listener_picker_curve_type(int &val);
         void listener_picker_curve_radius(double &val);
-    
-        bool _save_pdf = false;
+        void listener_picker_curve_radius_start(double &val);
+        void listener_picker_curve_radius_goal(double &val);
     
 };

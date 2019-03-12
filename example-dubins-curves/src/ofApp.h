@@ -4,6 +4,17 @@
 #include "Dubins.h"
 #include "ofxGui.h"
 
+/*
+ * TO DO:
+ * - [x] Add arrow keys for selecting curve indices (LEFT/RIGHT) and types (UP/DOWN)
+ * - [x] Add save button
+ * - [ ] Set different start and goal radiuses?
+ *    - [x] Working for CSC
+ *    - [ ] Working for CCC
+ * - [ ] Edit waypoint orientation (with gizmo)
+ * - [ ] Add waypoint picker?
+ */
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -31,4 +42,5 @@ class ofApp : public ofBaseApp{
         vector<ofVec3f> pts;
     
         ofxPanel panel;
+        bool show_gui = true;
 };
