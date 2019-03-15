@@ -188,7 +188,17 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     
     // get the interior angle between the start and goal circles
     float dist = start_circle->pos.distance(goal_circle->pos);
-    float interior_theta = acos(dist/(4.0*radius));
+    float tangent_radius = (radius_start + radius_goal)/2;
+    
+    // Law of Cosines
+    // beta = acos( ( a^2 + b^2 - c^2 ) / (2ab) )
+    // a = P1 to P3
+    // b = P1 to P2
+    // c = P3 to P2
+    float a = radius_start + tangent_radius;
+    float b = dist;
+    float c = tangent_radius + radius_goal;
+    float interior_theta = acos((a*a + b*b - c*c)/(2*a*b));
     if (type == Type::RLR){
         interior_theta += atan2(goal_circle->pos.y - start_circle->pos.y, goal_circle->pos.x - start_circle->pos.x);
         arc_1_left = false;
@@ -204,15 +214,19 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     }
     
     // Update the tangent circle
-    tangent_circle.radius = radius;
+    tangent_circle.radius = tangent_radius;
     // Compute the tangent circle using law of cosines + atan2 of line between start and goal circles
-    tangent_circle.pos = ofVec2f(start_circle->pos.x + (2.0*radius*cos(interior_theta)), start_circle->pos.y + (2.0*radius*sin(interior_theta)));
+    tangent_circle.pos = ofVec2f(start_circle->pos.x + ((tangent_radius+radius_start)*cos(interior_theta)), start_circle->pos.y + ((tangent_radius+radius_start)*sin(interior_theta)));
+    
     
     // Compute tangent points ont the given tangent circle
     start_tangent.x = (tangent_circle.pos.x + start_circle->pos.x)/2.0;
     start_tangent.y = (tangent_circle.pos.y + start_circle->pos.y)/2.0;
-    goal_tangent.x  = (tangent_circle.pos.x + goal_circle->pos.x)/2.0;
-    goal_tangent.y  = (tangent_circle.pos.y + goal_circle->pos.y)/2.0;
+    ofVec2f p2_p3 = goal_circle->pos - tangent_circle.pos;
+    p2_p3.normalize().scale(tangent_radius);
+    p2_p3 += tangent_circle.pos;
+    goal_tangent.x  = p2_p3.x;//(tangent_circle.pos.x + goal_circle->pos.x)/2.0;
+    goal_tangent.y  = p2_p3.y;//(tangent_circle.pos.y + goal_circle->pos.y)/2.0;
     
     // describe the first arc
     centroid = start_circle->pos;
@@ -223,8 +237,8 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     orientation_angle = x_axis.angle(ofVec3f(1,0,0));
     
     // get the rotation and length of the arc
-    arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius, arc_1_left));
-    curve_length += get_arc_length(centroid, arc_start, arc_end, radius, arc_1_left);
+    arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius_start, arc_1_left));
+    curve_length += get_arc_length(centroid, arc_start, arc_end, radius_start, arc_1_left);
     
     // set the start and end angles for the arc
     switch (type) {
@@ -242,12 +256,14 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
 
     
     // add the arc to the path
-    this->arc(centroid, radius, radius, angle_begin, angle_end, arc_1_left);
+    this->arc(centroid, radius_start, radius_start, angle_begin, angle_end, arc_1_left);
     
 //    cout << "orientation_angle: {" << ofToString(orientation_angle) << "}" << endl;
 //    cout << "arc_theta: " << ofToString(arc_theta) << "" << endl;
 //    cout << "angle_begin: " << ofToString(angle_begin) << "" << endl;
 //    cout << "angle_end: " << ofToString(angle_end) << "" << endl <<endl;
+    
+
     
     // describe the second arc
     centroid = tangent_circle.pos;
@@ -261,8 +277,8 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
         orientation_angle *= -1;
     
     // get the rotation and length of the arc
-    arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius, arc_2_left));
-    curve_length += get_arc_length(centroid, arc_start, arc_end, radius, arc_2_left);
+    arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, tangent_radius, arc_2_left));
+    curve_length += get_arc_length(centroid, arc_start, arc_end, tangent_radius, arc_2_left);
 
     
     angle_begin = orientation_angle;
@@ -270,7 +286,7 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
 
     
     // add the arc to the path
-    this->arc(centroid, radius, radius, angle_begin, angle_end, arc_2_left);
+    this->arc(centroid, tangent_radius, tangent_radius, angle_begin, angle_end, arc_2_left);
     
     
     // describe the third arc
@@ -282,8 +298,9 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     orientation_angle = x_axis.angle(ofVec3f(1,0,0));
     
     // get the rotation and length of the arc
-    arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius, arc_3_left));
-    curve_length += get_arc_length(centroid, arc_start, arc_end, radius, arc_3_left);
+    arc_theta = ofRadToDeg(get_arc_theta(centroid, arc_start, arc_end, radius_goal, arc_3_left));
+    curve_length += get_arc_length(centroid, arc_start, arc_end, radius_goal, arc_3_left);
+
     
     // set the start and end angles for the arc
     switch (type) {
@@ -301,7 +318,7 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     
 
     // add the arc to the path
-    this->arc(centroid, radius, radius, angle_begin, angle_end, arc_3_left);
+    this->arc(centroid, radius_goal, radius_goal, angle_begin, angle_end, arc_3_left);
     
     
     // update the curve length
@@ -403,7 +420,7 @@ void Curve::draw_CCC(){
     ofPushStyle();
     ofNoFill();
     ofSetColor(ofColor::yellowGreen, 200);
-    ofDrawEllipse(tangent_circle.pos, 2*radius, 2*radius);
+    ofDrawEllipse(tangent_circle.pos, 2*tangent_circle.radius, 2*tangent_circle.radius);
     ofPopStyle();
     
     draw_tangent_circles();

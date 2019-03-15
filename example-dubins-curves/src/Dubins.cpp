@@ -240,7 +240,7 @@ void Dubins::add_waypoint(ofNode waypoint, double _radius){
         auto pos1 = waypoints[waypoints.size()-2].getGlobalPosition();
         auto pos2 = waypoints[waypoints.size()-1].getGlobalPosition();
         
-        if (pos1.distance(pos2) < 4*_radius)
+        if (pos1.distance(pos2) < 4*_radius) // needs to be different if start and end radii are different sizes
             use_CCC = true;
         
         if (curves.size() == 0){

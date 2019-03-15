@@ -8,9 +8,9 @@
  * TO DO:
  * - [x] Add arrow keys for selecting curve indices (LEFT/RIGHT) and types (UP/DOWN)
  * - [x] Add save button
- * - [ ] Set different start and goal radiuses?
+ * - [x] Set different start and goal radiuses?
  *    - [x] Working for CSC
- *    - [ ] Working for CCC
+ *    - [x] Working for CCC
  * - [ ] Edit waypoint orientation (with gizmo)
  * - [ ] Add waypoint picker?
  */
