@@ -222,11 +222,8 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     // Compute tangent points ont the given tangent circle
     start_tangent.x = (tangent_circle.pos.x + start_circle->pos.x)/2.0;
     start_tangent.y = (tangent_circle.pos.y + start_circle->pos.y)/2.0;
-    ofVec2f p2_p3 = goal_circle->pos - tangent_circle.pos;
-    p2_p3.normalize().scale(tangent_radius);
-    p2_p3 += tangent_circle.pos;
-    goal_tangent.x  = p2_p3.x;//(tangent_circle.pos.x + goal_circle->pos.x)/2.0;
-    goal_tangent.y  = p2_p3.y;//(tangent_circle.pos.y + goal_circle->pos.y)/2.0;
+    goal_tangent.x  = (tangent_circle.pos.x + goal_circle->pos.x)/2.0;
+    goal_tangent.y  = (tangent_circle.pos.y + goal_circle->pos.y)/2.0;
     
     // describe the first arc
     centroid = start_circle->pos;
