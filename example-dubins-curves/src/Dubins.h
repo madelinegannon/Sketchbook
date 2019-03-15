@@ -55,6 +55,7 @@ class Dubins {
     
         vector<Curve> curves;
         vector<ofNode> waypoints;
+
     
         int active_waypoint_index = -1;
 

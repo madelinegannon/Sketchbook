@@ -199,6 +199,7 @@ void Curve::generate_CCC(Circle* start_circle, Circle* goal_circle){
     float b = dist;
     float c = tangent_radius + radius_goal;
     float interior_theta = acos((a*a + b*b - c*c)/(2*a*b));
+    
     if (type == Type::RLR){
         interior_theta += atan2(goal_circle->pos.y - start_circle->pos.y, goal_circle->pos.x - start_circle->pos.x);
         arc_1_left = false;

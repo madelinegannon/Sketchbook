@@ -11,8 +11,8 @@
  * - [x] Set different start and goal radiuses?
  *    - [x] Working for CSC
  *    - [x] Working for CCC
- * - [ ] Edit waypoint orientation (with gizmo)
- * - [ ] Add waypoint picker?
+ * - [x] Edit waypoint orientation (click and hold, +/- to adjust 10º)
+ * - [x] Add waypoint picker? (click and hold)
  */
 
 class ofApp : public ofBaseApp{

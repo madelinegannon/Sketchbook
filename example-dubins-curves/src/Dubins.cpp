@@ -583,6 +583,20 @@ void Dubins::keyPressed(int key){
             listener_picker_curve_type(type_num);
             break;
         }
+        case '-':{
+            if (active_waypoint_index != -1){
+                waypoints[active_waypoint_index].roll(-10);
+                update(waypoints);
+            }
+            break;
+        }
+        case '=':{
+            if (active_waypoint_index != -1){
+                waypoints[active_waypoint_index].roll(10);
+                update(waypoints);
+            }
+            break;
+        }
         default:
             break;
     }
@@ -612,7 +626,8 @@ void Dubins::mousePressed(int x, int y, int button){
 
 //--------------------------------------------------------------
 void Dubins::mouseReleased(int x, int y, int button){
-    active_waypoint_index = -1;
+//    if (!picker_curve)
+        active_waypoint_index = -1;
 }
 
 //--------------------------------------------------------------
