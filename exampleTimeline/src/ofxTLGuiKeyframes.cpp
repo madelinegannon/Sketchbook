@@ -83,47 +83,87 @@ void ofxTLGuiKeyframes::updateParameterGroupAtTime(unsigned long long sampleTime
    if(keyframes.size() == 1 || keyframes[0]->time >= sampleTime){
         
         ofxTLGuiKeyframe* key  = (ofxTLGuiKeyframe*)keyframes[0];
-        
-        // update each slider with the current float value
-        for (int i=0; i<params->size(); i++){
-            params->get(i).cast<float>().set(key->values[i]);
-        }
-        return;
+       
+       // update each slider with the current parameter  value
+       // update each bool parameter
+       for (int j=0; j<key->params_bool.size(); j++){
+           params->get(key->params_bool[j].first).cast<bool>().set(key->params_bool[j].second);
+       }
+       
+       // update each float parameter
+       for (int j=0; j<key->params_float.size(); j++){
+           params->get(key->params_float[j].first).cast<float>().set(key->params_float[j].second);
+       }
+       
+       // update each ofVec3f parameter
+       for (int j=0; j<key->params_ofVec3f.size(); j++){
+           params->get(key->params_ofVec3f[j].first).cast<ofVec3f>().set(key->params_ofVec3f[j].second);
+       }
+       
+       return;
     }
     
     //sampling after the last we return the last
-   if(keyframes[keyframes.size()-1]->time <= sampleTime){
+    if(keyframes[keyframes.size()-1]->time <= sampleTime){
         
         ofxTLGuiKeyframe* key  = (ofxTLGuiKeyframe*)keyframes[keyframes.size()-1];
         
         // update each slider with the current float value
-        for (int i=0; i<params->size(); i++){
-            params->get(i).cast<float>().set(key->values[i]);
+        // update each bool parameter
+        for (int j=0; j<key->params_bool.size(); j++){
+            params->get(key->params_bool[j].first).cast<bool>().set(key->params_bool[j].second);
         }
+        
+        // update each float parameter
+        for (int j=0; j<key->params_float.size(); j++){
+            params->get(key->params_float[j].first).cast<float>().set(key->params_float[j].second);
+        }
+        
+        // update each ofVec3f parameter
+        for (int j=0; j<key->params_ofVec3f.size(); j++){
+            params->get(key->params_ofVec3f[j].first).cast<ofVec3f>().set(key->params_ofVec3f[j].second);
+        }
+        
         return;
     }
-
-        //now we are somewhere in between, search
-        //keyframes will always be sorted
-        for(int i = 1; i < keyframes.size(); i++){
-            if(keyframes[i]->time >= sampleTime){
-                ofxTLGuiKeyframe* prevKey  = (ofxTLGuiKeyframe*)keyframes[i-1];
-                ofxTLGuiKeyframe* nextKey  = (ofxTLGuiKeyframe*)keyframes[i];
-                
-                float alpha = ofMap(sampleTime, prevKey->time, nextKey->time, 0, 1.0);
-
-                // update each slider with the interpolated float value
-                for (int i=0; i<params->size(); i++){
-                    
-                    float val = ofLerp(prevKey->values[i], nextKey->values[i], alpha);
-                    params->get(i).cast<float>().set(val);
-                    
+    
+    //now we are somewhere in between, search
+    //keyframes will always be sorted
+    for(int i = 1; i < keyframes.size(); i++){
+        if(keyframes[i]->time >= sampleTime){
+            ofxTLGuiKeyframe* prevKey  = (ofxTLGuiKeyframe*)keyframes[i-1];
+            ofxTLGuiKeyframe* nextKey  = (ofxTLGuiKeyframe*)keyframes[i];
+            
+            float alpha = ofMap(sampleTime, prevKey->time, nextKey->time, 0, 1.0);
+            
+            // update each slider with the interpolated parameter value
+            
+            // update each bool parameter (don't interpolate, just trigger next when close)
+            for (int j=0; j<prevKey->params_bool.size(); j++){
+                if (alpha > .95){
+                    params->get(nextKey->params_bool[j].first).cast<bool>().set(nextKey->params_bool[j].second);
                 }
-                break;
             }
-        } cout << endl;
-    
-    
+            
+            // update each float parameter
+            for (int j=0; j<prevKey->params_float.size(); j++){
+                float val = ofLerp(prevKey->params_float[j].second, nextKey->params_float[j].second, alpha);
+                params->get(nextKey->params_float[j].first).cast<float>().set(val);
+            }
+            
+            // update each ofVec3f parameter
+            for (int j=0; j<prevKey->params_ofVec3f.size(); j++){
+                float x = ofLerp(prevKey->params_ofVec3f[j].second.x, nextKey->params_ofVec3f[j].second.x, alpha);
+                float y = ofLerp(prevKey->params_ofVec3f[j].second.y, nextKey->params_ofVec3f[j].second.y, alpha);
+                float z = ofLerp(prevKey->params_ofVec3f[j].second.z, nextKey->params_ofVec3f[j].second.z, alpha);
+                
+                params->get(nextKey->params_ofVec3f[j].first).cast<ofVec3f>().set(ofVec3f(x,y,z));
+            }
+            
+
+            break;
+        }
+    }
 }
 
 
@@ -161,29 +201,60 @@ ofxTLKeyframe* ofxTLGuiKeyframes::newKeyframe(){
     
     ofxTLGuiKeyframe* newKey = new ofxTLGuiKeyframe();
     
-    // store the current value of each slider
+    // store the current value of each parameter
     for (int i=0; i<params->size(); i++){
-        newKey->names.push_back(params->get(i).getName());
-        newKey->values.push_back(params->get(i).cast<float>());
+        
+//        cout << "type id: " << params->getType(i) << endl;
+        
+        if (params->getType(i) == "11ofParameterIbE"){
+//            cout << "adding a new BOOL param: " << params->get(i).getName() << ", " << params->get(i).cast<bool>() << endl;
+            newKey->params_bool.push_back(make_pair(params->get(i).getName(), params->get(i).cast<bool>()));
+            
+        }
+        else if(params->getType(i) == "11ofParameterIfE"){
+//            cout << "adding a new FLOAT param: " << params->get(i).getName() << ", " << params->get(i).cast<float>() << endl;
+            newKey->params_float.push_back(make_pair(params->get(i).getName(), params->get(i).cast<float>()));
+        }
+        else if (params->getType(i) == "11ofParameterI7ofVec3fE"){
+//            cout << "adding a new VEC3 param: " << params->get(i).getName() << ", " << params->get(i).cast<ofVec3f>() << endl;
+            newKey->params_ofVec3f.push_back(make_pair(params->get(i).getName(), params->get(i).cast<ofVec3f>()));
+        }
     }
-    
     return newKey;
 }
 
 void ofxTLGuiKeyframes::restoreKeyframe(ofxTLKeyframe* key, ofxXmlSettings& xmlStore){
     ofxTLGuiKeyframe* emptyKey = (ofxTLGuiKeyframe*)key;
+
+    // restore each float parameter
+    for (int i=0; i<emptyKey->params_float.size(); i++){
+        emptyKey->params_float[i].second = xmlStore.getValue(emptyKey->params_float[i].first, 0.);
+    }
     
-    for (int i=0; i<emptyKey->names.size(); i++){
-        emptyKey->values[i] = xmlStore.getValue(emptyKey->names[i], 0.);
+    // restore each bool parameter
+    for (int i=0; i<emptyKey->params_bool.size(); i++){
+        emptyKey->params_bool[i].second = xmlStore.getValue(emptyKey->params_bool[i].first, 0);
     }
 
+    // restore each ofVec3f parameter (which is saved as a string)
+    for (int i=0; i<emptyKey->params_ofVec3f.size(); i++){
+        string s = xmlStore.getValue(emptyKey->params_ofVec3f[i].first, "0, 0, 0");
+        emptyKey->params_ofVec3f[i].second = ofFromString<ofVec3f>(s);
+    }
 }
 
 void ofxTLGuiKeyframes::storeKeyframe(ofxTLKeyframe* key, ofxXmlSettings& xmlStore){
     ofxTLGuiKeyframe* emptyKey = (ofxTLGuiKeyframe*)key;
-     for (int i=0; i<emptyKey->values.size(); i++){
-         xmlStore.addValue(emptyKey->names[i],emptyKey->values[i]);
-     }
+    for (int i=0; i<emptyKey->params_float.size(); i++){
+        xmlStore.addValue(emptyKey->params_float[i].first,emptyKey->params_float[i].second);
+    }
+    for (int i=0; i<emptyKey->params_bool.size(); i++){
+        xmlStore.addValue(emptyKey->params_bool[i].first,emptyKey->params_bool[i].second);
+    }    
+    // store each ofVec3f parameter as a string
+    for (int i=0; i<emptyKey->params_ofVec3f.size(); i++){
+        xmlStore.addValue(emptyKey->params_ofVec3f[i].first, ofToString(emptyKey->params_ofVec3f[i].second));
+    }
 }
 
 ofxTLKeyframe* ofxTLGuiKeyframes::keyframeAtScreenpoint(ofVec2f p){

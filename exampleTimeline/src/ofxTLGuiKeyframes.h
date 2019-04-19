@@ -16,11 +16,10 @@
 //inherits time and value from the super class
 class ofxTLGuiKeyframe : public ofxTLKeyframe {
 public:
-    
-    float value_float;
-    string name;
-    vector<string> names;
-    vector<float> values;
+
+    vector<pair<string, float>> params_float;
+    vector<pair<string, bool>> params_bool;
+    vector<pair<string, ofVec3f>> params_ofVec3f;
     
 };
 

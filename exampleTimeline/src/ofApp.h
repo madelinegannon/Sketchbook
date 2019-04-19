@@ -32,12 +32,14 @@ class ofApp : public ofBaseApp{
         ofParameterGroup params;
     
         ofParameterGroup param_00;
+        ofParameter<bool> param_bool_0;
         ofParameter<float> param_00_a;
         ofParameter<float> param_00_b;
     
         ofParameterGroup param_01;
         ofParameter<float> param_01_a;
         ofParameter<float> param_01_b;
+        ofParameter<ofVec3f> param_ofVec3f_0;
     
         ofParameterGroup param_02;
         ofParameter<float> param_02_a;

@@ -42,12 +42,14 @@ void ofApp::draw(){
 void ofApp::setupGui(){
     
     param_00.setName("param_00");
+    param_00.add(param_bool_0.set("param_bool_0", true));
     param_00.add(param_00_a.set("param_00_a", 0, -PI, PI));
     param_00.add(param_00_b.set("param_00_b", .5, 0, 1));
     
     param_01.setName("param_01");
     param_01.add(param_01_a.set("param_01_a", 0, -PI, PI));
     param_01.add(param_01_b.set("param_01_b", .5, 0, 1));
+    param_01.add(param_ofVec3f_0.set("param_ofVec3f_0", ofVec3f(), ofVec3f(-1,-1,-1), ofVec3f(1,1,1)));
     
     param_02.setName("param_02");
     param_02.add(param_02_a.set("param_02_a", 0, -PI, PI));
@@ -80,7 +82,7 @@ void ofApp::setupTimeline(){
     
     for (int i=0; i<4; i++){
         keyframes.push_back(new ofxTLGuiKeyframes());
-        keyframes[i]->setXMLFileName("keyframes_param_"+ofToString(i));
+        keyframes[i]->setXMLFileName("keyframes_param_"+ofToString(i)+".xml");
     }
     
     keyframes[0]->setParameterGroup(param_00);
