@@ -37,7 +37,7 @@ void ofxTLGuiKeyframes::draw(){
             //so we can safely cast
             ofxTLGuiKeyframe* emptyKeyframe = (ofxTLGuiKeyframe*)keyframes[i];
             if(hoverKeyframe == emptyKeyframe){
-                ofSetColor(timeline->getColors().highlightColor);
+                ofSetColor(255);//timeline->getColors().highlightColor);
             }
             else if(isKeyframeSelected(emptyKeyframe)){
                 ofSetColor(timeline->getColors().textColor);
@@ -51,7 +51,9 @@ void ofxTLGuiKeyframes::draw(){
             ofPushMatrix();
             ofTranslate(screenPoint);
             ofRotate(45);
-            ofSetColor(10,204,201);
+            // hightlight the selected keyframe
+            ofColor col = (isKeyframeSelected(emptyKeyframe)) ?  ofColor(10,204,201) : ofColor(255,231,1);
+            ofSetColor(col);
             ofDrawRectangle(0,0,10,10);
             ofSetColor(255,231,1);
             ofDrawRectangle(0,0,7,7);
