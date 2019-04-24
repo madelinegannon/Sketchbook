@@ -1,0 +1,156 @@
+<keyframes>
+    <key>
+        <Target_Pos_0>2998.7, 0, 4990.7</Target_Pos_0>
+        <Target_Pos_1>2424.82, 1763.36, 5009.13</Target_Pos_1>
+        <Target_Pos_2>932.49, 2853.17, 4992.34</Target_Pos_2>
+        <Target_Pos_3>-934.933, 2853.17, 5005.11</Target_Pos_3>
+        <Target_Pos_4>-2417.84, 1763.36, 4998.16</Target_Pos_4>
+        <Target_Pos_5>-3009.24, -0.000262268, 4998.31</Target_Pos_5>
+        <Target_Pos_6>-2419.08, -1763.36, 5004.98</Target_Pos_6>
+        <Target_Pos_7>-932.617, -2853.17, 4992.43</Target_Pos_7>
+        <Target_Pos_8>929.432, -2853.17, 5009.09</Target_Pos_8>
+        <Target_Pos_9>2428.19, -1763.36, 4990.67</Target_Pos_9>
+        <time>00:00:06:011</time>
+        <value>0.949999988</value>
+    </key>
+    <key>
+        <Target_Pos_0>3000, 0, 5000</Target_Pos_0>
+        <Target_Pos_1>2427.05, 1763.36, 5000</Target_Pos_1>
+        <Target_Pos_2>927.051, 2853.17, 5000</Target_Pos_2>
+        <Target_Pos_3>-927.051, 2853.17, 5000</Target_Pos_3>
+        <Target_Pos_4>-2427.05, 1763.36, 1318.5</Target_Pos_4>
+        <Target_Pos_5>-3000, -0.000262268, 1385.29</Target_Pos_5>
+        <Target_Pos_6>-2427.05, -1763.36, 1282.86</Target_Pos_6>
+        <Target_Pos_7>-927.051, -2853.17, 5000</Target_Pos_7>
+        <Target_Pos_8>927.052, -2853.17, 5000</Target_Pos_8>
+        <Target_Pos_9>2427.05, -1763.36, 5000</Target_Pos_9>
+        <time>00:00:06:918</time>
+        <value>0.949999988</value>
+    </key>
+    <key>
+        <Target_Pos_0>3000, 0, 5000</Target_Pos_0>
+        <Target_Pos_1>2427.05, 1763.36, 1253.28</Target_Pos_1>
+        <Target_Pos_2>927.051, 2853.17, 1279.09</Target_Pos_2>
+        <Target_Pos_3>-927.051, 2853.17, 1311.45</Target_Pos_3>
+        <Target_Pos_4>-2427.05, 1763.36, 1318.5</Target_Pos_4>
+        <Target_Pos_5>-3000, -0.000262268, 1385.29</Target_Pos_5>
+        <Target_Pos_6>-2427.05, -1763.36, 1282.86</Target_Pos_6>
+        <Target_Pos_7>-927.051, -2853.17, 5000</Target_Pos_7>
+        <Target_Pos_8>927.052, -2853.17, 5000</Target_Pos_8>
+        <Target_Pos_9>2427.05, -1763.36, 5000</Target_Pos_9>
+        <time>00:00:07:584</time>
+        <value>0.574999988</value>
+    </key>
+    <key>
+        <Target_Pos_0>3000, 0, 1273.67</Target_Pos_0>
+        <Target_Pos_1>2427.05, 1763.36, 1253.28</Target_Pos_1>
+        <Target_Pos_2>927.051, 2853.17, 1279.09</Target_Pos_2>
+        <Target_Pos_3>-927.051, 2853.17, 1311.45</Target_Pos_3>
+        <Target_Pos_4>-2427.05, 1763.36, 1318.5</Target_Pos_4>
+        <Target_Pos_5>-3000, -0.000262268, 1385.29</Target_Pos_5>
+        <Target_Pos_6>-2427.05, -1763.36, 1282.86</Target_Pos_6>
+        <Target_Pos_7>-927.051, -2853.17, 1272.22</Target_Pos_7>
+        <Target_Pos_8>927.052, -2853.17, 1269.66</Target_Pos_8>
+        <Target_Pos_9>2427.05, -1763.36, 1314.77</Target_Pos_9>
+        <time>00:00:08:182</time>
+        <value>0.300000012</value>
+    </key>
+    <key>
+        <Target_Pos_0>2998.7, 0, 4990.7</Target_Pos_0>
+        <Target_Pos_1>2424.82, 1763.36, 5009.13</Target_Pos_1>
+        <Target_Pos_2>932.49, 2853.17, 4992.34</Target_Pos_2>
+        <Target_Pos_3>-934.933, 2853.17, 5005.11</Target_Pos_3>
+        <Target_Pos_4>-2417.84, 1763.36, 4998.16</Target_Pos_4>
+        <Target_Pos_5>-3009.24, -0.000262268, 4998.31</Target_Pos_5>
+        <Target_Pos_6>-2419.08, -1763.36, 5004.98</Target_Pos_6>
+        <Target_Pos_7>-932.617, -2853.17, 4992.43</Target_Pos_7>
+        <Target_Pos_8>929.432, -2853.17, 5009.09</Target_Pos_8>
+        <Target_Pos_9>2428.19, -1763.36, 4990.67</Target_Pos_9>
+        <time>00:00:15:276</time>
+        <value>0.850000024</value>
+    </key>
+    <key>
+        <Target_Pos_0>2998.7, 0, 4990.7</Target_Pos_0>
+        <Target_Pos_1>2424.82, 1763.36, 5009.13</Target_Pos_1>
+        <Target_Pos_2>932.49, 2853.17, 4992.34</Target_Pos_2>
+        <Target_Pos_3>-934.933, 2853.17, 5005.11</Target_Pos_3>
+        <Target_Pos_4>-2417.84, 1763.36, 4998.16</Target_Pos_4>
+        <Target_Pos_5>-3009.24, -0.000262268, 4998.31</Target_Pos_5>
+        <Target_Pos_6>-2419.08, -1763.36, 5004.98</Target_Pos_6>
+        <Target_Pos_7>-932.617, -2853.17, 4992.43</Target_Pos_7>
+        <Target_Pos_8>929.432, -2853.17, 5009.09</Target_Pos_8>
+        <Target_Pos_9>2428.19, -1763.36, 4990.67</Target_Pos_9>
+        <time>00:00:16:005</time>
+        <value>0.800000012</value>
+    </key>
+    <key>
+        <Target_Pos_0>2998.7, 0, 4990.7</Target_Pos_0>
+        <Target_Pos_1>2424.82, 1763.36, 5009.13</Target_Pos_1>
+        <Target_Pos_2>932.49, 2853.17, 4992.34</Target_Pos_2>
+        <Target_Pos_3>-934.933, 2853.17, 5005.11</Target_Pos_3>
+        <Target_Pos_4>-2417.84, 1763.36, 4998.16</Target_Pos_4>
+        <Target_Pos_5>-3009.24, -0.000262268, 4998.31</Target_Pos_5>
+        <Target_Pos_6>-2419.08, -1763.36, 5004.98</Target_Pos_6>
+        <Target_Pos_7>-932.617, -2853.17, 4992.43</Target_Pos_7>
+        <Target_Pos_8>929.432, -2853.17, 5009.09</Target_Pos_8>
+        <Target_Pos_9>2428.19, -1763.36, 4990.67</Target_Pos_9>
+        <time>00:00:17:818</time>
+        <value>0.875000000</value>
+    </key>
+    <key>
+        <Target_Pos_0>3000, 0, 5000</Target_Pos_0>
+        <Target_Pos_1>2427.05, 1763.36, 5000</Target_Pos_1>
+        <Target_Pos_2>927.051, 2853.17, 5000</Target_Pos_2>
+        <Target_Pos_3>-927.051, 2853.17, 5000</Target_Pos_3>
+        <Target_Pos_4>-2427.05, 1763.36, 1318.5</Target_Pos_4>
+        <Target_Pos_5>-3000, -0.000262268, 1385.29</Target_Pos_5>
+        <Target_Pos_6>-2427.05, -1763.36, 1282.86</Target_Pos_6>
+        <Target_Pos_7>-927.051, -2853.17, 5000</Target_Pos_7>
+        <Target_Pos_8>927.052, -2853.17, 5000</Target_Pos_8>
+        <Target_Pos_9>2427.05, -1763.36, 5000</Target_Pos_9>
+        <time>00:00:18:667</time>
+        <value>0.899999976</value>
+    </key>
+    <key>
+        <Target_Pos_0>3000, 0, 5000</Target_Pos_0>
+        <Target_Pos_1>2427.05, 1763.36, 1253.28</Target_Pos_1>
+        <Target_Pos_2>927.051, 2853.17, 1279.09</Target_Pos_2>
+        <Target_Pos_3>-927.051, 2853.17, 1311.45</Target_Pos_3>
+        <Target_Pos_4>-2427.05, 1763.36, 1318.5</Target_Pos_4>
+        <Target_Pos_5>-3000, -0.000262268, 1385.29</Target_Pos_5>
+        <Target_Pos_6>-2427.05, -1763.36, 1282.86</Target_Pos_6>
+        <Target_Pos_7>-927.051, -2853.17, 5000</Target_Pos_7>
+        <Target_Pos_8>927.052, -2853.17, 5000</Target_Pos_8>
+        <Target_Pos_9>2427.05, -1763.36, 5000</Target_Pos_9>
+        <time>00:00:19:253</time>
+        <value>0.524999976</value>
+    </key>
+    <key>
+        <Target_Pos_0>3000, 0, 1273.67</Target_Pos_0>
+        <Target_Pos_1>2427.05, 1763.36, 1253.28</Target_Pos_1>
+        <Target_Pos_2>927.051, 2853.17, 1279.09</Target_Pos_2>
+        <Target_Pos_3>-927.051, 2853.17, 1311.45</Target_Pos_3>
+        <Target_Pos_4>-2427.05, 1763.36, 1318.5</Target_Pos_4>
+        <Target_Pos_5>-3000, -0.000262268, 1385.29</Target_Pos_5>
+        <Target_Pos_6>-2427.05, -1763.36, 1282.86</Target_Pos_6>
+        <Target_Pos_7>-927.051, -2853.17, 1272.22</Target_Pos_7>
+        <Target_Pos_8>927.052, -2853.17, 1269.66</Target_Pos_8>
+        <Target_Pos_9>2427.05, -1763.36, 1314.77</Target_Pos_9>
+        <time>00:00:19:853</time>
+        <value>0.274999976</value>
+    </key>
+    <key>
+        <Target_Pos_0>1454.45, -119.525, 1230.89</Target_Pos_0>
+        <Target_Pos_1>1372.06, 682.553, 1208.37</Target_Pos_1>
+        <Target_Pos_2>675.727, 1152.01, 1292.09</Target_Pos_2>
+        <Target_Pos_3>-98.3051, 1279.96, 1271.22</Target_Pos_3>
+        <Target_Pos_4>-1016.58, 957.566, 1380.24</Target_Pos_4>
+        <Target_Pos_5>-1414.43, 76.4946, 1310.69</Target_Pos_5>
+        <Target_Pos_6>-1323.17, -879.307, 1359.95</Target_Pos_6>
+        <Target_Pos_7>-464.705, -1316.79, 1203.52</Target_Pos_7>
+        <Target_Pos_8>555.89, -1408.66, 1320.34</Target_Pos_8>
+        <Target_Pos_9>1175.05, -856.658, 1289.31</Target_Pos_9>
+        <time>00:00:25:991</time>
+        <value>0.824999988</value>
+    </key>
+</keyframes>

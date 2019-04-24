@@ -1,0 +1,13 @@
+ofxEasing
+ofxGizmo
+ofxGui
+ofxJSON
+ofxMSATimer
+ofxOsc
+ofxRange
+ofxTextInputField
+ofxTimecode
+ofxTimeline
+ofxTiming
+ofxTween
+ofxXmlSettings
