@@ -3,6 +3,8 @@
 #include "ofMain.h"
 #include "ofxGui.h"
 
+
+
 class ofApp : public ofBaseApp{
 
 	public:
@@ -27,7 +29,7 @@ class ofApp : public ofBaseApp{
     
         //------- MAPPING --------
         ofTexture  texScreen;
-        ofPolyline quad; // <-- should save/load to file
+        ofPolyline quad;
     
         // debugging
         void test_texture_warping();

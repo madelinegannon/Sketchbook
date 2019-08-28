@@ -39,8 +39,8 @@ void ofApp::update(){
                     case 2:
                         p3.set(v);
                         break;
-                    case 4:
-                        p3.set(v);
+                    case 3:
+                        p4.set(v);
                         break;
                     default:
                         break;
@@ -84,7 +84,7 @@ void ofApp::draw(){
 }
 
 //--------------------------------------------------------------
-void ofApp::exit(){    
+void ofApp::exit(){
     panel.saveToFile("settings.xml");
 }
 
@@ -251,6 +251,10 @@ void ofApp::keyPressed(int key){
             break;
         case 'g':
             show_gui.set(!show_gui);
+            break;
+        case 'f':
+            ofToggleFullscreen();
+            texScreen.allocate(ofGetWidth(), ofGetHeight(), GL_RGB);
             break;
         default:
             break;
