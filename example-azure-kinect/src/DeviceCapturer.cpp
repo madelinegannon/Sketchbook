@@ -1,4 +1,5 @@
 #include "DeviceCapturer.h"
+#include "k4astaticimageproperties.h"
 
 DeviceCapturer::DeviceCapturer(){};
 
@@ -20,7 +21,7 @@ void DeviceCapturer::setup()
     retrieve_color.set("Color", true);
     retrieve_depth.set("Depth", true);
     retrieve_ir.set("IR", true);
-    get_raw.set("Get_Raw", true);
+    get_raw.set("Get_Raw", false);
 
     open();
 }
@@ -209,6 +210,86 @@ void DeviceCapturer::update_pixels_color(k4a_image_t image)
     }
 }
 
+/**
+ * 
+ * 
+void MultiDeviceController::k4a_colorize_image_to_OF(k4a::image *img, ofPixels *pix, ofTexture *tex, bool ir_image, bool grayscale)
+{
+    auto dims = glm::ivec2(img->get_width_pixels(), img->get_height_pixels());
+    int num_channels = 4;
+
+    // Update the pixel array
+    if (!pix->isAllocated())
+    {
+        pix->allocate(dims.x, dims.y, num_channels);
+    }
+
+    auto depthData = reinterpret_cast<uint16_t *>(img->get_buffer());
+    const int width = dims.x;
+    const int height = dims.y;
+    std::pair<uint16_t, uint16_t> range;
+    if (ir_image)
+        range = GetIrLevels(main_config.depth_mode);
+    else
+        range = GetDepthModeRange(main_config.depth_mode);
+
+    for (int h = 0; h < height; ++h)
+    {
+        for (int w = 0; w < width; ++w)
+        {
+            const size_t currentPixel = static_cast<size_t>(h * width + w);
+
+            if (grayscale)
+                pix->setColor(w, h, colorize_grayscale(&depthData[currentPixel], range.first, range.second));
+            else // colorize_red2blue
+                pix->setColor(w, h, colorize_red2blue(&depthData[currentPixel], range.first, range.second));
+        }
+    }
+    // pix->setFromPixels(reinterpret_cast<uint8_t *>(img.get_buffer()), dims.x, dims.y, num_channels);
+
+}
+
+*/
+
+void DeviceCapturer::colorize(k4a_image_t image, ofShortPixels *pix)
+{
+    auto dims = glm::ivec2(k4a_image_get_width_pixels(image), k4a_image_get_height_pixels(image));
+
+    // get the min/max range based on image type
+    std::pair<uint16_t, uint16_t> range;
+    auto image_format = k4a_image_get_format(image);
+    if (image_format == K4A_IMAGE_FORMAT_IR16)
+    {
+        range = GetIrLevels(config.depth_mode);
+    }
+    else if (image_format == K4A_IMAGE_FORMAT_DEPTH16)
+    {
+        range = GetDepthModeRange(config.depth_mode);
+    }
+
+    // remap each pixel
+    const int width = dims.x;
+    const int height = dims.y;
+    auto depthData = reinterpret_cast<uint16_t *>(k4a_image_get_buffer(image));
+    for (int h = 0; h < height; ++h)
+    {
+        for (int w = 0; w < width; ++w)
+        {
+            const size_t currentPixel = static_cast<size_t>(h * width + w);
+            auto val = depthData[currentPixel];
+            if (val == 0)
+                pix->setColor(w, h, 0);
+            else
+            {
+                if (image_format == K4A_IMAGE_FORMAT_IR16)
+                    pix->setColor(w, h, colorize_grayscale(&depthData[currentPixel], range.first, range.second));
+                else if (image_format == K4A_IMAGE_FORMAT_DEPTH16)
+                    pix->setColor(w, h, colorize_red2blue(&depthData[currentPixel], range.first, range.second));
+            }
+        }
+    }
+}
+
 void DeviceCapturer::update_pixels_depth(k4a_image_t image)
 {
     auto dims = glm::ivec2(k4a_image_get_width_pixels(image), k4a_image_get_height_pixels(image));
@@ -230,7 +311,13 @@ void DeviceCapturer::update_pixels_depth(k4a_image_t image)
         pix->clear();
         pix->allocate(dims.x, dims.y, num_channels);
     }
-    pix->setFromPixels(reinterpret_cast<uint16_t *>(k4a_image_get_buffer(image)), dims.x, dims.y, num_channels);
+
+    if (get_raw)
+        pix->setFromPixels(reinterpret_cast<uint16_t *>(k4a_image_get_buffer(image)), dims.x, dims.y, num_channels);
+    else
+    {
+        colorize(image, pix);
+    }
 }
 
 void DeviceCapturer::update_pixels_ir(k4a_image_t image)
@@ -252,7 +339,12 @@ void DeviceCapturer::update_pixels_ir(k4a_image_t image)
     {
         pix->allocate(dims.x, dims.y, num_channels);
     }
-    pix->setFromPixels(reinterpret_cast<uint16_t *>(k4a_image_get_buffer(image)), dims.x, dims.y, num_channels);
+
+    if (get_raw)
+        pix->setFromPixels(reinterpret_cast<uint16_t *>(k4a_image_get_buffer(image)), dims.x, dims.y, num_channels);
+    else{
+        colorize(image, pix);
+    }
 }
 
 void DeviceCapturer::update_textures(ofPixels *pix_color, ofShortPixels *pix_depth, ofShortPixels *pix_ir)
@@ -335,4 +427,25 @@ void DeviceCapturer::update_textures(ofPixels *pix_color, ofShortPixels *pix_dep
     }
     // update the pixel frame number
     frame_num_tex = frame_num_pix;
+}
+
+ofColor DeviceCapturer::colorize_grayscale(uint16_t *value, uint16_t &min, uint16_t &max)
+{
+    (*value) = std::min(*value, max);
+    constexpr uint8_t pixel_max = std::numeric_limits<uint8_t>::max();
+
+    auto val = ofMap(*value, min, max, 0, 255, true);
+    return ofColor(val, val, val, pixel_max);
+}
+
+ofColor DeviceCapturer::colorize_red2blue(uint16_t *value, uint16_t &min, uint16_t &max)
+{
+    if ((*value) == 0)
+    {
+        return ofColor(0, 0, 0, 255);
+    }
+
+    float hue = ofMap(*value, min, max, 2. / 3., 0, true);
+
+    return ofColor::fromHsb(hue * 255, 255, 255);
 }

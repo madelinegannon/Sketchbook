@@ -3,6 +3,7 @@
 #include "ofMain.h"
 #include "k4a.h"
 
+
 constexpr int64_t TIMEOUT_IN_MS = 1000;
 
 class DeviceCapturer : ofThread
@@ -31,6 +32,10 @@ private:
     void update_pixels_ir(k4a_image_t image);
 
     void update_textures(ofPixels *pix_color, ofShortPixels *pix_depth, ofShortPixels *pix_ir);
+
+    void colorize(k4a_image_t image, ofShortPixels * pix);
+    ofColor colorize_grayscale(uint16_t *value, uint16_t &min, uint16_t &max);
+    ofColor colorize_red2blue(uint16_t *value, uint16_t &min, uint16_t &max);
 
     ofParameter<bool> retrieve_color;
     ofParameter<bool> retrieve_depth;
