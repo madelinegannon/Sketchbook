@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package kinect;
+
+message Image {
+    string type = 1;
+    int32 width = 2;
+    int32 height = 3;
+	int32 stride = 4;
+    bytes image_data = 5;
+}
+
+message Device {
+    string serial_number = 1;
+    string depth_mode = 2;
+    string color_resolution = 3;
+}
