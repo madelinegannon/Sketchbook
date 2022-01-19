@@ -87,7 +87,6 @@ void ofApp::keypressed_camera(int key){
             listener_show_perspective(val);
             break;
     }
-    
 }
 
 //--------------------------------------------------------------

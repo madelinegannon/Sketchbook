@@ -98,7 +98,7 @@ void ofApp::draw_world(){
                 pos = ofVec3f(cos(ofDegToRad(start_angle - i*angle_incr)), sin(ofDegToRad(start_angle - i*angle_incr)), 0);
             // add the radius
             pos = pos * cyl_radius;
-            // offset based on the axis between circles
+            // vertical offset based on the axis between circles
             ofVec3f offset = axis.getScaled(i * (cyl_height / count));
             pos += offset;
             // move based on gizmo originally at {0,0,0}
