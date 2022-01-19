@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package kinect;
+
+message Image {
+    int32 width = 1;
+    int32 height = 2;
+	int32 stride = 3;
+    bytes image_data = 4;
+}
+
