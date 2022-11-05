@@ -59,6 +59,9 @@ void ofApp::setup_comms()
 void ofApp::send_message(k4abt_skeleton_t body, int id)
 {
 	ofJson _body;
+	ofJson _id;
+	_id["id"] = id;
+	_body.push_back(_id);
 	for (int i = 0; i < K4ABT_JOINT_COUNT; ++i)
 	{
 		auto name = k4abt_joint_names[i];
@@ -88,11 +91,30 @@ void ofApp::send_message(k4abt_skeleton_t body, int id)
 */
 int ofApp::get_closest_body(vector<k4abt_skeleton_t> bodies)
 {
+	int index = -1;
 	if (this->kinectDevice.getNumBodies() == 1)
 	{
 		return 0;
 	}
-	return 0;
+	else
+	{
+		// Use the centroid of the 2 hands as the query point
+		auto min_dist = FLT_MAX;
+		auto origin = glm::vec3(0.0);
+		for (int i=0; i<bodies.size(); i++)
+		{
+			auto hand_left = toGlm(bodies[i].joints[K4ABT_JOINT_WRIST_LEFT].position);
+			auto hand_right = toGlm(bodies[i].joints[K4ABT_JOINT_WRIST_RIGHT].position);
+			auto centroid = (hand_left + hand_right) / 2.0;
+			auto dist = glm::distance2(centroid, origin);
+			if (dist < min_dist)
+			{
+				min_dist = dist;
+				index = i;
+			}
+		}
+	}
+	return index;
 }
 
 //--------------------------------------------------------------
@@ -104,14 +126,14 @@ void ofApp::exit()
 //--------------------------------------------------------------
 void ofApp::update()
 {
-
 	if (this->kinectDevice.getNumBodies() > 0)
 	{
 		auto& bodySkeletons = this->kinectDevice.getBodySkeletons();
 		int closest = get_closest_body(bodySkeletons);
-		send_message(bodySkeletons[closest], closest);		
+		int id = this->kinectDevice.getBodyIDs()[closest];
+		// cout << "Closest is Body Index: " << ofToString(closest) << ", ID: " << ofToString(id) << endl;
+		send_message(bodySkeletons[closest], id);		
 	}
-
 }
 
 //--------------------------------------------------------------
