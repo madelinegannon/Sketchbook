@@ -2,7 +2,7 @@
 
 This example moves an agent via a tunable pd controller. You can then get RPMs from its velocity and clamp its velocity using a max RPM.
 
-![]([http://url/to/img.png](https://github.com/madelinegannon/Sketchbook/blob/main/example-pid-controller-rpm/exapmle-pid-controller-rpm.gif))
+![](https://github.com/madelinegannon/Sketchbook/blob/main/example-pid-controller-rpm/exapmle-pid-controller-rpm.gif)
 
 ### Controls
 
