@@ -40,6 +40,11 @@ void ofApp::setup()
 	std::vector<glm::vec3> verts(1);
 	this->pointsVbo.setVertexData(verts.data(), verts.size(), GL_STATIC_DRAW);
 
+#ifdef LOAD_CONFIG_FILE
+	load_settings();
+#endif // LOAD_CONFIG_FILE
+
+
 	setup_osc(this->ip_address, this->port);
 
 }
@@ -283,9 +288,57 @@ int ofApp::get_closest_skeleton()
 	return index;
 }
 
+/**
+ * @brief Saves system settings to a file.
+ *
+ * @param (string)  filename: file saved to local /bin/data folder (must end in .xml). Defaults to "settings.xml"
+ */
+void ofApp::save_settings(string filename)
+{
+	ofxXmlSettings config;
+	config.addTag("config");
+	config.pushTag("config");
+	config.addValue("ip_address", this->ip_address);
+	config.addValue("port", this->port);
+	config.popTag();
+
+	if (filename == "")
+		filename = "settings.xml";
+	config.saveFile(filename);
+	ofLogNotice("ofApp::save_settings") << "Saving settings file to: /bin/data/" << filename;
+}
+
+/**
+ * @brief Loads system settings from a file.
+ *
+ * @param (string)  filename: file must be in local /bin/data folder (must end in .xml). Defaults to "settings.xml"
+ */
+void ofApp::load_settings(string filename)
+{
+	ofxXmlSettings config;
+	if (filename == "")
+		filename = "settings.xml";
+
+	if (config.loadFile(filename)) {
+		this->ip_address = config.getValue("config:ip_address", "");
+		this->port = config.getValue("config:port", 0);
+	}
+	else {
+		ofLogWarning("ofApp::load_settings") << "No settings file found at: /bin/data/" << filename;
+	}
+}
+
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+	switch (key)
+	{
+	case 's':
+	case 'S':
+		save_settings();
+		break;
+	default:
+		break;
+	}
 }
 
 //--------------------------------------------------------------

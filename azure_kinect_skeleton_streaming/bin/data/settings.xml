@@ -1,0 +1,4 @@
+<config>
+    <ip_address>127.0.0.1</ip_address>
+    <port>55555</port>
+</config>

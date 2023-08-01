@@ -1,3 +1,4 @@
 ofxAzureKinect
 ofxGui
 ofxOsc
+ofxXmlSettings

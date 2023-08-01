@@ -9,6 +9,9 @@
 
 #include "ofxAzureKinect.h"
 #include "ofxOsc.h"
+#include "ofxXmlSettings.h"
+
+#define LOAD_CONFIG_FILE
 
 class ofApp 
 	: public ofBaseApp 
@@ -49,4 +52,8 @@ private:
 	void setup_osc(string ip_addr, int port);
 	void send_skeleton();
 	int get_closest_skeleton();
+
+	// use a config file to change the ip adress and port without recompiling
+	void save_settings(string filename = "settings.xml");
+	void load_settings(string filename = "settings.xml");
 };
