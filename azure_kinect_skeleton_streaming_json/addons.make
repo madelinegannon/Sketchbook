@@ -1,0 +1,4 @@
+ofxAzureKinect
+ofxNetwork
+ofxOsc
+ofxXmlSettings

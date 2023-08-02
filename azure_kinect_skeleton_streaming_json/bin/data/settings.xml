@@ -1,0 +1,4 @@
+<config>
+    <ip_address>192.168.0.83</ip_address>
+    <port>12345</port>
+</config>
